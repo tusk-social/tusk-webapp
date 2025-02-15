@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { ImageIcon, SmileIcon } from 'lucide-react';
-import TextareaAutosize from 'react-textarea-autosize';
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
-import Image from 'next/image';
-import { createPortal } from 'react-dom';
+import { useState, useRef, useEffect } from "react";
+import { ImageIcon, SmileIcon } from "lucide-react";
+import TextareaAutosize from "react-textarea-autosize";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import Image from "next/image";
+import { createPortal } from "react-dom";
 
 const MAX_CHARS = 280;
 
@@ -16,7 +16,7 @@ type EmojiPickerData = {
 };
 
 export default function CreatePost() {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -24,11 +24,11 @@ export default function CreatePost() {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        emojiPickerRef.current && 
+        emojiPickerRef.current &&
         !emojiPickerRef.current.contains(event.target as Node) &&
         !emojiButtonRef.current?.contains(event.target as Node)
       ) {
@@ -36,16 +36,16 @@ export default function CreatePost() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
     if (showEmojiPicker && emojiButtonRef.current) {
       const buttonRect = emojiButtonRef.current.getBoundingClientRect();
-      const buttonCenter = buttonRect.left + (buttonRect.width / 2);
+      const buttonCenter = buttonRect.left + buttonRect.width / 2;
       const isMobile = window.innerWidth < 640;
-      
+
       setPickerPosition({
         top: buttonRect.bottom + window.scrollY + 5,
         left: isMobile ? window.innerWidth / 2 : buttonCenter,
@@ -57,9 +57,9 @@ export default function CreatePost() {
     const handleResize = () => {
       if (showEmojiPicker && emojiButtonRef.current) {
         const buttonRect = emojiButtonRef.current.getBoundingClientRect();
-        const buttonCenter = buttonRect.left + (buttonRect.width / 2);
+        const buttonCenter = buttonRect.left + buttonRect.width / 2;
         const isMobile = window.innerWidth < 640;
-        
+
         setPickerPosition({
           top: buttonRect.bottom + window.scrollY + 5,
           left: isMobile ? window.innerWidth / 2 : buttonCenter,
@@ -67,18 +67,18 @@ export default function CreatePost() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [showEmojiPicker]);
 
   const handlePost = async () => {
     if (!content.trim() && !image) return;
     if (content.length > MAX_CHARS) return;
-    
+
     setIsPosting(true);
     // TODO: Implement actual post creation
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setContent('');
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    setContent("");
     setImage(null);
     setIsPosting(false);
   };
@@ -93,7 +93,7 @@ export default function CreatePost() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       handlePost();
     }
   };
@@ -116,7 +116,7 @@ export default function CreatePost() {
               className="object-cover"
             />
           </div>
-          
+
           <div className="flex-1 space-y-4">
             <TextareaAutosize
               value={content}
@@ -129,10 +129,10 @@ export default function CreatePost() {
 
             {image && (
               <div className="relative">
-                <Image 
-                  src={image} 
-                  alt="Upload preview" 
-                  className="rounded-2xl max-h-[300px] object-contain" 
+                <Image
+                  src={image}
+                  alt="Upload preview"
+                  className="rounded-2xl max-h-[300px] object-contain"
                   width={600}
                   height={300}
                   unoptimized // Since we're dealing with local blob URLs
@@ -162,7 +162,7 @@ export default function CreatePost() {
                   accept="image/*"
                   onChange={handleImageUpload}
                 />
-                
+
                 <div className="relative">
                   <button
                     ref={emojiButtonRef}
@@ -172,45 +172,52 @@ export default function CreatePost() {
                   >
                     <SmileIcon size={20} className="align-middle" />
                   </button>
-                  {showEmojiPicker && createPortal(
-                    <div 
-                      ref={emojiPickerRef}
-                      style={{
-                        position: 'absolute',
-                        top: `${pickerPosition.top}px`,
-                        left: `${pickerPosition.left}px`,
-                        transform: 'translateX(-50%)',
-                        zIndex: 9999,
-                      }}
-                    >
-                      <Picker 
-                        data={data} 
-                        onEmojiSelect={(emoji: any) => {
-                          setContent((prev) => prev + emoji.native);
-                          setShowEmojiPicker(false);
+                  {showEmojiPicker &&
+                    createPortal(
+                      <div
+                        ref={emojiPickerRef}
+                        style={{
+                          position: "absolute",
+                          top: `${pickerPosition.top}px`,
+                          left: `${pickerPosition.left}px`,
+                          transform: "translateX(-50%)",
+                          zIndex: 9999,
                         }}
-                        theme="dark"
-                        previewPosition="none"
-                      />
-                    </div>,
-                    document.body
-                  )}
+                      >
+                        <Picker
+                          data={data}
+                          onEmojiSelect={(emoji: EmojiPickerData) => {
+                            setContent((prev) => prev + emoji.native);
+                            setShowEmojiPicker(false);
+                          }}
+                          theme="dark"
+                          previewPosition="none"
+                        />
+                      </div>,
+                      document.body,
+                    )}
                 </div>
-                
-                <span className={`text-sm ${
-                  content.length > MAX_CHARS 
-                    ? 'text-red-500' 
-                    : content.length > MAX_CHARS * 0.8 
-                      ? 'text-yellow-500' 
-                      : 'text-gray-500'
-                }`}>
+
+                <span
+                  className={`text-sm ${
+                    content.length > MAX_CHARS
+                      ? "text-red-500"
+                      : content.length > MAX_CHARS * 0.8
+                        ? "text-yellow-500"
+                        : "text-gray-500"
+                  }`}
+                >
                   {content.length}/{MAX_CHARS}
                 </span>
               </div>
 
               <button
                 onClick={handlePost}
-                disabled={isPosting || content.length > MAX_CHARS || (!content.trim() && !image)}
+                disabled={
+                  isPosting ||
+                  content.length > MAX_CHARS ||
+                  (!content.trim() && !image)
+                }
                 className="bg-brand hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed 
                   text-white px-4 py-2 rounded-full font-medium transition flex items-center"
               >
@@ -225,4 +232,4 @@ export default function CreatePost() {
       </div>
     </div>
   );
-} 
+}
