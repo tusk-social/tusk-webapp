@@ -8,7 +8,7 @@ export default function OnboardingPage() {
           Create your profile
         </h1>
         <p className="text-gray-400">
-          Choose how you'll appear on Tusk
+          Choose how you&apos;ll appear on Tusk
         </p>
       </div>
 
