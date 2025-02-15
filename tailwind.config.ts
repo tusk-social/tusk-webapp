@@ -85,14 +85,37 @@ const config: Config = {
         glow: {
           '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)' },
           '50%': { transform: 'translate(-50%, -50%) scale(1.2)' },
+        },
+        gradient: {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center',
           },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center',
+          },
+        },
+        'timeline-glow': {
+          '0%, 100%': {
+            'opacity': '0.5',
+            'transform': 'translateX(-50%) translateY(-50%) scale(0.95)',
+          },
+          '50%': {
+            'opacity': '0.7',
+            'transform': 'translateX(-50%) translateY(-50%) scale(1.05)',
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         'glow': 'glow 10s ease-in-out infinite',
         'glow-slow': 'glow 12s ease-in-out infinite',
-        'glow-slower': 'glow 15s ease-in-out infinite',  
+        'glow-slower': 'glow 15s ease-in-out infinite',
+        gradient: 'gradient 8s linear infinite',
+        'gradient-fast': 'gradient 4s linear infinite',
+        'timeline-glow': 'timeline-glow 8s ease-in-out infinite',
       },
     },
   },

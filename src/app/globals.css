@@ -19,3 +19,18 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Remove default outline from all inputs */
+input:focus,
+textarea:focus,
+button:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Optional: Add custom focus styles */
+input:focus,
+textarea:focus {
+  border-color: #be3fd5 !important;
+}
