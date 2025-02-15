@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { ImageIcon, SmileIcon } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import Image from 'next/image';
+import { createPortal } from 'react-dom';
 
 const MAX_CHARS = 280;
 
@@ -16,6 +18,7 @@ export default function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,6 +34,37 @@ export default function CreatePost() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (showEmojiPicker && emojiButtonRef.current) {
+      const buttonRect = emojiButtonRef.current.getBoundingClientRect();
+      const buttonCenter = buttonRect.left + (buttonRect.width / 2);
+      const isMobile = window.innerWidth < 640;
+      
+      setPickerPosition({
+        top: buttonRect.bottom + window.scrollY + 5,
+        left: isMobile ? window.innerWidth / 2 : buttonCenter,
+      });
+    }
+  }, [showEmojiPicker]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (showEmojiPicker && emojiButtonRef.current) {
+        const buttonRect = emojiButtonRef.current.getBoundingClientRect();
+        const buttonCenter = buttonRect.left + (buttonRect.width / 2);
+        const isMobile = window.innerWidth < 640;
+        
+        setPickerPosition({
+          top: buttonRect.bottom + window.scrollY + 5,
+          left: isMobile ? window.innerWidth / 2 : buttonCenter,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [showEmojiPicker]);
 
   const handlePost = async () => {
     if (!content.trim() && !image) return;
@@ -126,21 +160,28 @@ export default function CreatePost() {
                   >
                     <SmileIcon size={20} className="align-middle" />
                   </button>
-                  {showEmojiPicker && (
+                  {showEmojiPicker && createPortal(
                     <div 
                       ref={emojiPickerRef}
-                      className="absolute right-0 top-full mt-2 z-50"
+                      style={{
+                        position: 'absolute',
+                        top: `${pickerPosition.top}px`,
+                        left: `${pickerPosition.left}px`,
+                        transform: 'translateX(-50%)',
+                        zIndex: 9999,
+                      }}
                     >
-                      <EmojiPicker
-                        onEmojiClick={(emojiData) => {
-                          setContent(prev => prev + emojiData.emoji);
+                      <Picker 
+                        data={data} 
+                        onEmojiSelect={(emoji: any) => {
+                          setContent((prev) => prev + emoji.native);
                           setShowEmojiPicker(false);
                         }}
-                        theme={Theme.DARK}
-                        width={300}
-                        height={400}
+                        theme="dark"
+                        previewPosition="none"
                       />
-                    </div>
+                    </div>,
+                    document.body
                   )}
                 </div>
                 
