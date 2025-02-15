@@ -1,13 +1,67 @@
+'use client';
+
 import { Post } from "@/types/post";
-import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, Bookmark, BookMarked } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 interface PostCardProps {
   post: Post;
 }
 
+function parseContent(content: string) {
+  const words = content.split(/(\s+)/);
+  
+  return words.map((word, index) => {
+    if (word.startsWith('#')) {
+      return (
+        <Link
+          key={index}
+          href={`/hashtag/${encodeURIComponent(word.slice(1))}`}
+          className="text-brand hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {word}
+        </Link>
+      );
+    }
+    if (word.startsWith('@')) {
+      const username = word.slice(1);
+      return (
+        <Link
+          key={index}
+          href={`/${username}`}
+          className="text-brand hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {word}
+        </Link>
+      );
+    }
+    return word;
+  });
+}
+
 export default function PostCard({ post }: PostCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
+
+  const handleBookmark = () => {
+    // TODO: Add API call to toggle bookmark
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleShare = () => {
+    // TODO: Add share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: `${post.author.name}'s post on Tusk`,
+        text: post.content,
+        url: `${window.location.origin}/${post.author.username}/status/${post.id}`,
+      }).catch(console.error);
+    }
+  };
+
   return (
     <article className="group border-b border-gray-800 pb-4 px-4 hover:bg-white/[0.02] transition cursor-pointer relative">
       {/* Glow Effect */}
@@ -18,7 +72,11 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="relative z-10">
         <div className="flex space-x-4 pt-4">
           <div className="flex-shrink-0 flex flex-col">
-            <div className="w-12 h-12 rounded-full bg-gray-800 relative overflow-hidden">
+            <Link
+              href={`/${post.author.username}`}
+              onClick={(e) => e.stopPropagation()}
+              className="w-12 h-12 rounded-full bg-gray-800 relative overflow-hidden"
+            >
               {post.author.avatar && (
                 <Image
                   src={post.author.avatar}
@@ -27,7 +85,7 @@ export default function PostCard({ post }: PostCardProps) {
                   className="object-cover"
                 />
               )}
-            </div>
+            </Link>
             {post.isThread && post.threadPosts && post.threadPosts.length > 0 && (
               <div className="w-0.5 bg-gray-800 mx-auto flex-1 my-2" />
             )}
@@ -35,15 +93,27 @@ export default function PostCard({ post }: PostCardProps) {
 
           <div className="flex-1">
             <div className="flex items-center space-x-2">
-              <Link href={`/${post.author.username}`} className="font-bold hover:underline">
+              <Link 
+                href={`/${post.author.username}`} 
+                className="font-bold hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {post.author.name}
               </Link>
-              <span className="text-gray-500">@{post.author.username}</span>
+              <Link 
+                href={`/${post.author.username}`}
+                className="text-gray-500 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                @{post.author.username}
+              </Link>
               <span className="text-gray-500">·</span>
               <span className="text-gray-500">{post.createdAt}</span>
             </div>
 
-            <p className="mt-2 whitespace-pre-wrap">{post.content}</p>
+            <p className="mt-2 whitespace-pre-wrap">
+              {parseContent(post.content)}
+            </p>
 
             {/* Image Grid */}
             {post.images && post.images.length > 0 && (
@@ -75,24 +145,42 @@ export default function PostCard({ post }: PostCardProps) {
                     
                     <div className="border-t border-gray-800 pt-4">
                       <div className="flex space-x-4">
-                        <div className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden flex-shrink-0">
-                          {threadPost.author.avatar && (
-                            <Image
-                              src={threadPost.author.avatar}
-                              alt={threadPost.author.name}
-                              fill
-                              className="object-cover"
-                            />
-                          )}
+                        <div className="flex-shrink-0 flex flex-col">
+                          <Link
+                            href={`/${threadPost.author.username}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden"
+                          >
+                            {threadPost.author.avatar && (
+                              <Image
+                                src={threadPost.author.avatar}
+                                alt={threadPost.author.name}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
+                          </Link>
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
-                            <span className="font-bold">{threadPost.author.name}</span>
-                            <span className="text-gray-500">@{threadPost.author.username}</span>
+                            <Link 
+                              href={`/${threadPost.author.username}`}
+                              className="font-bold hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {threadPost.author.name}
+                            </Link>
+                            <Link 
+                              href={`/${threadPost.author.username}`}
+                              className="text-gray-500 hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              @{threadPost.author.username}
+                            </Link>
                             <span className="text-gray-500">·</span>
                             <span className="text-gray-500">{threadPost.createdAt}</span>
                           </div>
-                          <p className="mt-2">{threadPost.content}</p>
+                          <p className="mt-2">{parseContent(threadPost.content)}</p>
                         </div>
                       </div>
                     </div>
@@ -121,12 +209,33 @@ export default function PostCard({ post }: PostCardProps) {
                 </div>
                 <span>{formatNumber(post.stats.likes)}</span>
               </button>
-              <button className="flex items-center space-x-2 hover:text-brand group p-2">
-                <div className="p-2 rounded-full group-hover:bg-brand/10">
-                  <Share className="w-4 h-4" />
+              <div className="flex items-center gap-4 text-gray-400">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
+                  className="hover:text-brand transition-colors"
+                >
+                  <Share className="w-5 h-5" />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookmark();
+                    }}
+                    className="hover:text-brand transition-colors"
+                  >
+                    {isBookmarked ? (
+                      <BookMarked className="w-5 h-5" />
+                    ) : (
+                      <Bookmark className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
-                <span>{formatNumber(post.stats.views)}</span>
-              </button>
+              </div>
             </div>
           </div>
         </div>

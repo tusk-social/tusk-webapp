@@ -19,4 +19,5 @@ export interface Post {
   images?: string[];
   isThread?: boolean;
   threadPosts?: Omit<Post, 'threadPosts'>[];
+  isBookmarked?: boolean;
 } 
