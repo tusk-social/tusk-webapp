@@ -19,10 +19,10 @@ const MOCK_USER = {
   followers: 69,
 };
 
-export default function ProfilePage({ params }: { params: { username: string } }) {
-  const username = params.username;
+//export default async function ProfilePage({ params }: { params: { username: string } }) {
+export default async function ProfilePage() {
+  //const username = params.username;
   
-  // In real app, fetch user data here
   const user = MOCK_USER;
   
   if (!user) {
