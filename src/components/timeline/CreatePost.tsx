@@ -185,7 +185,7 @@ export default function CreatePost() {
                     >
                       <Picker 
                         data={data} 
-                        onEmojiSelect={(emoji: EmojiPickerData) => {
+                        onEmojiSelect={(emoji: any) => {
                           setContent((prev) => prev + emoji.native);
                           setShowEmojiPicker(false);
                         }}
