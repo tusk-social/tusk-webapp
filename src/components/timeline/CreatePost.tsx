@@ -10,6 +10,11 @@ import { createPortal } from 'react-dom';
 
 const MAX_CHARS = 280;
 
+// Add this type for emoji-mart
+type EmojiPickerData = {
+  native: string;
+};
+
 export default function CreatePost() {
   const [content, setContent] = useState('');
   const [image, setImage] = useState<string | null>(null);
@@ -124,7 +129,14 @@ export default function CreatePost() {
 
             {image && (
               <div className="relative">
-                <img src={image} alt="Upload preview" className="rounded-2xl max-h-[300px] object-contain" />
+                <Image 
+                  src={image} 
+                  alt="Upload preview" 
+                  className="rounded-2xl max-h-[300px] object-contain" 
+                  width={600}
+                  height={300}
+                  unoptimized // Since we're dealing with local blob URLs
+                />
                 <button
                   onClick={() => setImage(null)}
                   className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 transition"
@@ -173,7 +185,7 @@ export default function CreatePost() {
                     >
                       <Picker 
                         data={data} 
-                        onEmojiSelect={(emoji: any) => {
+                        onEmojiSelect={(emoji: EmojiPickerData) => {
                           setContent((prev) => prev + emoji.native);
                           setShowEmojiPicker(false);
                         }}
