@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ImageIcon, SmileIcon } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import Image from 'next/image';
 
 const MAX_CHARS = 280;
@@ -136,7 +136,7 @@ export default function CreatePost() {
                           setContent(prev => prev + emojiData.emoji);
                           setShowEmojiPicker(false);
                         }}
-                        theme="dark"
+                        theme={Theme.DARK}
                         width={300}
                         height={400}
                       />
