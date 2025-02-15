@@ -35,7 +35,7 @@ export default function OnboardingPage() {
               Username
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-gray-500">
+              <span className="absolute inset-y-0 left-4 flex items-center text-gray-500 z-10">
                 @
               </span>
               <input
