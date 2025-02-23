@@ -11,7 +11,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@chopinframework/next": "^1.1.2",
+    "@chopinframework/next": "^1.1.3",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@radix-ui/react-alert-dialog": "^1.1.6",
