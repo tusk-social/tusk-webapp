@@ -84,8 +84,8 @@ export default function LeftSidebar() {
           <button className="w-full flex items-center gap-3 p-3 rounded-full hover:bg-gray-900 transition-colors">
             <div className="w-10 h-10 rounded-full bg-gray-800 flex-shrink-0" />
             <div className="flex-1 text-left">
-              <div className="font-bold">Display Name</div>
-              <div className="text-gray-500 text-sm">@username</div>
+              <div className="font-bold">Levan</div>
+              <div className="text-gray-500 text-sm">@blockcraft3r</div>
             </div>
           </button>
         </div>

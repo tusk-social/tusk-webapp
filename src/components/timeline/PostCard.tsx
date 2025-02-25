@@ -5,29 +5,29 @@ import { Heart, MessageCircle, Repeat2, Share, Bookmark, BookMarked } from "luci
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface PostCardProps {
   post: Post;
 }
 
 function parseContent(content: string) {
-  const words = content.split(/(\s+)/);
-  
-  return words.map((word, index) => {
-    if (word.startsWith('#')) {
+  return content.split(/(\s+)/).map((part, index) => {
+    if (part.startsWith('#')) {
+      const tag = part.slice(1);
       return (
         <Link
           key={index}
-          href={`/hashtag/${encodeURIComponent(word.slice(1))}`}
+          href={`/hashtag/${encodeURIComponent(tag)}`}
           className="text-brand hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
-          {word}
+          {part}
         </Link>
       );
     }
-    if (word.startsWith('@')) {
-      const username = word.slice(1);
+    if (part.startsWith('@')) {
+      const username = part.slice(1);
       return (
         <Link
           key={index}
@@ -35,16 +35,17 @@ function parseContent(content: string) {
           className="text-brand hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
-          {word}
+          {part}
         </Link>
       );
     }
-    return word;
+    return part;
   });
 }
 
 export default function PostCard({ post }: PostCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
+  const router = useRouter();
 
   const handleBookmark = () => {
     // TODO: Add API call to toggle bookmark
@@ -62,8 +63,15 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
+  const handlePostClick = () => {
+    router.push(`/${post.author.username}/status/${post.id}`);
+  };
+
   return (
-    <article className="group border-b border-gray-800 pb-4 px-4 hover:bg-white/[0.02] transition cursor-pointer relative z-[10]">
+    <article 
+      onClick={handlePostClick}
+      className="group border-b border-gray-800 pb-4 px-4 hover:bg-white/[0.02] transition cursor-pointer relative z-[10]"
+    >
       {/* Glow Effect */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <div className="absolute inset-0 bg-gradient-to-r from-brand/5 via-purple-400/5 to-brand/5 blur-xl" />
@@ -111,9 +119,9 @@ export default function PostCard({ post }: PostCardProps) {
               <span className="text-gray-500">{post.createdAt}</span>
             </div>
 
-            <p className="mt-2 whitespace-pre-wrap">
+            <div className="whitespace-pre-wrap">
               {parseContent(post.content)}
-            </p>
+            </div>
 
             {/* Image Grid */}
             {post.images && post.images.length > 0 && (

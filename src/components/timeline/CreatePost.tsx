@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { ImageIcon, SmileIcon } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import data from "@emoji-mart/data";
@@ -15,7 +15,30 @@ type EmojiPickerData = {
   native: string;
 };
 
-export default function CreatePost() {
+interface Post {
+  id: string;
+  type: 'text' | 'image';
+  content: string;
+  author: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  createdAt: string;
+  stats: {
+    replies: number;
+    reposts: number;
+    likes: number;
+    views: number;
+  };
+  images?: string[];
+}
+
+interface CreatePostProps {
+  onPost: (post: Post) => void;
+}
+
+export default function CreatePost({ onPost }: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
@@ -71,31 +94,53 @@ export default function CreatePost() {
     return () => window.removeEventListener("resize", handleResize);
   }, [showEmojiPicker]);
 
-  const handlePost = async () => {
-    if (!content.trim() && !image) return;
-    if (content.length > MAX_CHARS) return;
+  const handlePost = () => {
+    if (!content.trim()) return;
 
-    setIsPosting(true);
-    // TODO: Implement actual post creation
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    const newPost: Post = {
+      id: Math.random().toString(36).substring(7),
+      type: image ? 'image' : 'text',
+      content: content.trim(),
+      author: {
+        name: 'Current User',
+        username: 'currentuser',
+        avatar: 'https://api.randomx.ai/avatar/currentuser'
+      },
+      createdAt: 'now',
+      stats: {
+        replies: 0,
+        reposts: 0,
+        likes: 0,
+        views: 0
+      },
+      ...(image && { images: [image] })
+    };
+
+    onPost(newPost);
     setContent("");
     setImage(null);
-    setIsPosting(false);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target?.result as string);
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       handlePost();
     }
+  };
+
+  const handleEmojiSelect = (emoji: EmojiPickerData) => {
+    setContent((prev) => prev + emoji.native);
+    setShowEmojiPicker(false);
   };
 
   return (
@@ -109,7 +154,7 @@ export default function CreatePost() {
         <div className="flex space-x-4">
           <div className="w-12 h-12 rounded-full bg-gray-800 overflow-hidden">
             <Image
-              src="/default-avatar.png"
+              src="https://api.randomx.ai/avatar/currentuser"
               alt="User avatar"
               width={48}
               height={48}
@@ -135,7 +180,7 @@ export default function CreatePost() {
                   className="rounded-2xl max-h-[300px] object-contain"
                   width={600}
                   height={300}
-                  unoptimized // Since we're dealing with local blob URLs
+                  unoptimized
                 />
                 <button
                   onClick={() => setImage(null)}
@@ -146,90 +191,66 @@ export default function CreatePost() {
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-brand hover:text-brand/90 transition p-2"
-                  aria-label="Upload image"
+            <div className="flex items-center justify-between pt-4">
+              <div className="flex items-center space-x-2">
+                <label className="p-2 hover:bg-brand/20 rounded-full transition cursor-pointer">
+                  <ImageIcon className="w-5 h-5 text-brand" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    ref={fileInputRef}
+                  />
+                </label>
+                <button 
+                  ref={emojiButtonRef}
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+                  className="p-2 hover:bg-brand/20 rounded-full transition"
                 >
-                  <ImageIcon size={20} className="align-middle" />
+                  <SmileIcon className="w-5 h-5 text-brand" />
                 </button>
-                <input
-                  type="file"
-                  hidden
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-
-                <div className="relative">
-                  <button
-                    ref={emojiButtonRef}
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="text-brand hover:text-brand/90 transition p-2"
-                    aria-label="Add emoji"
-                  >
-                    <SmileIcon size={20} className="align-middle" />
-                  </button>
-                  {showEmojiPicker &&
-                    createPortal(
-                      <div
-                        ref={emojiPickerRef}
-                        style={{
-                          position: "absolute",
-                          top: `${pickerPosition.top}px`,
-                          left: `${pickerPosition.left}px`,
-                          transform: "translateX(-50%)",
-                          zIndex: 9999,
-                        }}
-                      >
-                        <Picker
-                          data={data}
-                          onEmojiSelect={(emoji: EmojiPickerData) => {
-                            setContent((prev) => prev + emoji.native);
-                            setShowEmojiPicker(false);
-                          }}
-                          theme="dark"
-                          previewPosition="none"
-                        />
-                      </div>,
-                      document.body,
-                    )}
-                </div>
-
-                <span
-                  className={`text-sm ${
-                    content.length > MAX_CHARS
-                      ? "text-red-500"
-                      : content.length > MAX_CHARS * 0.8
-                        ? "text-yellow-500"
-                        : "text-gray-500"
-                  }`}
-                >
-                  {content.length}/{MAX_CHARS}
-                </span>
+                
+                {content.length > 0 && (
+                  <div className="flex items-center">
+                    <div className="w-[2px] h-6 mx-2 bg-gray-800" />
+                    <span className={`text-sm ${content.length > MAX_CHARS ? 'text-red-500' : 'text-gray-500'}`}>
+                      {content.length}/{MAX_CHARS}
+                    </span>
+                  </div>
+                )}
               </div>
-
               <button
                 onClick={handlePost}
-                disabled={
-                  isPosting ||
-                  content.length > MAX_CHARS ||
-                  (!content.trim() && !image)
-                }
-                className="bg-brand hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed 
-                  text-white px-4 py-2 rounded-full font-medium transition flex items-center"
+                disabled={!content.trim() || content.length > MAX_CHARS}
+                className="bg-brand px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand/90 transition"
               >
-                {isPosting ? (
-                  <span className="inline-block animate-spin mr-2">⭮</span>
-                ) : null}
                 Post
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {showEmojiPicker && createPortal(
+        <div
+          ref={emojiPickerRef}
+          style={{
+            position: 'absolute',
+            top: `${pickerPosition.top}px`,
+            left: `${pickerPosition.left}px`,
+            transform: 'translateX(-50%)',
+            zIndex: 50,
+          }}
+        >
+          <Picker
+            data={data}
+            onEmojiSelect={handleEmojiSelect}
+            theme="dark"
+          />
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

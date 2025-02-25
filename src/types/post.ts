@@ -20,4 +20,5 @@ export interface Post {
   isThread?: boolean;
   threadPosts?: Omit<Post, 'threadPosts'>[];
   isBookmarked?: boolean;
+  comments?: Post[];
 } 

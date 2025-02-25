@@ -7,11 +7,11 @@ const SAMPLE_BOOKMARKS: Post[] = [
   {
     id: '1',
     type: 'text',
-    content: 'This is a bookmarked post about #coding and #webdev!',
+    content: 'This is a bookmarked post about #coding and #webdev',
     author: {
       name: 'Tech Enthusiast',
       username: 'techlover',
-      avatar: '/avatars/tech.jpg'
+      avatar: 'https://api.randomx.ai/avatar/techlover'
     },
     createdAt: '2h',
     stats: {
@@ -29,10 +29,10 @@ const SAMPLE_BOOKMARKS: Post[] = [
     author: {
       name: 'Design Master',
       username: 'designpro',
-      avatar: '/avatars/designer.jpg'
+      avatar: 'https://api.randomx.ai/avatar/designpro'
     },
     createdAt: '5h',
-    images: ['/posts/design1.jpg'],
+    images: ['https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg'],
     stats: {
       replies: 8,
       reposts: 15,

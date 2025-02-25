@@ -11,7 +11,7 @@ const EXPLORE_POSTS: Post[] = [
     author: {
       name: "Tech Explorer",
       username: "techexplorer",
-      avatar: "/avatars/tech.jpg",
+      avatar: "https://api.randomx.ai/avatar/techexplorer",
     },
     createdAt: "2h",
     stats: {
@@ -29,10 +29,10 @@ const EXPLORE_POSTS: Post[] = [
     author: {
       name: "Web Wizard",
       username: "webwizard",
-      avatar: "/avatars/wizard.jpg",
+      avatar: "https://api.randomx.ai/avatar/webwizard",
     },
     createdAt: "5h",
-    images: ["/posts/webdev.jpg"],
+    images: ["https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg"],
     stats: {
       replies: 28,
       reposts: 75,

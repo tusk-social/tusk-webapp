@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function WhoToFollow() {
   return (
     <div className="bg-gray-900 rounded-2xl mt-4">
@@ -9,7 +11,14 @@ export default function WhoToFollow() {
             className="px-4 py-3 hover:bg-white/[0.03] transition cursor-pointer flex items-center justify-between"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
+              <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
+                <Image
+                  src={`https://api.randomx.ai/avatar/user${user}`}
+                  alt="User avatar"
+                  width={40}
+                  height={40}
+                />
+              </div>
               <div>
                 <p className="font-bold text-base">User Name</p>
                 <p className="text-gray-500 text-sm">@username</p>

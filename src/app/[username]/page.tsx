@@ -9,7 +9,7 @@ import AppLayout from "@/components/layout/AppLayout";
 const MOCK_USER = {
   name: "John Doe",
   username: "johndoe",
-  avatar: "/avatars/john.jpg",
+  avatar: "https://api.randomx.ai/avatar/johndoe",
   banner: "/banners/default.jpg",
   bio: "Software engineer by day, dreamer by night 💫\nBuilding the future, one line of code at a time.",
   location: "San Francisco, CA",

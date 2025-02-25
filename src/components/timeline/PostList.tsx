@@ -5,11 +5,14 @@ const SAMPLE_POSTS: Post[] = [
   {
     id: '1',
     type: 'text',
-    content: 'Just a regular text post. #Tusk',
+    content: `Just launched Tusk - a modern Twitter alternative! 🚀
+
+Built with @chopinframework and @celestia, for #Mammothon. What do you think?
+`,
     author: {
       name: 'John Doe',
       username: 'johndoe',
-      avatar: '/avatars/john.jpg'
+      avatar: 'https://api.randomx.ai/avatar/johndoe'
     },
     createdAt: '2h',
     stats: {
@@ -26,14 +29,13 @@ const SAMPLE_POSTS: Post[] = [
     author: {
       name: 'Travel Enthusiast',
       username: 'traveler',
-      avatar: '/avatars/traveler.jpg'
+      avatar: 'https://api.randomx.ai/avatar/traveler'
     },
     createdAt: '4h',
     images: [
-      '/posts/trip1.jpg',
-      '/posts/trip2.jpg',
-      '/posts/trip3.jpg',
-      '/posts/trip4.jpg'
+      'https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg',
+      'https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg',
+      'https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg',
     ],
     stats: {
       replies: 45,
@@ -41,67 +43,17 @@ const SAMPLE_POSTS: Post[] = [
       likes: 1200,
       views: 15400
     }
-  },
-  {
-    id: '3',
-    type: 'thread',
-    content: '1/ Starting a thread about building great products...',
-    author: {
-      name: 'Product Guru',
-      username: 'prodguru',
-      avatar: '/avatars/guru.jpg'
-    },
-    createdAt: '5h',
-    isThread: true,
-    threadPosts: [
-      {
-        id: '3.1',
-        type: 'text',
-        content: '2/ First, always start with the user problem. What are they trying to solve?',
-        author: {
-          name: 'Product Guru',
-          username: 'prodguru',
-          avatar: '/avatars/guru.jpg'
-        },
-        createdAt: '5h',
-        stats: {
-          replies: 8,
-          reposts: 15,
-          likes: 45,
-          views: 850
-        }
-      },
-      {
-        id: '3.2',
-        type: 'text',
-        content: '3/ Then, focus on the simplest solution that could work. MVP is key.',
-        author: {
-          name: 'Product Guru',
-          username: 'prodguru',
-          avatar: '/avatars/guru.jpg'
-        },
-        createdAt: '5h',
-        stats: {
-          replies: 5,
-          reposts: 12,
-          likes: 38,
-          views: 720
-        }
-      }
-    ],
-    stats: {
-      replies: 25,
-      reposts: 48,
-      likes: 156,
-      views: 2800
-    }
   }
 ];
 
-export default function PostList() {
+interface PostListProps {
+  posts?: Post[];
+}
+
+export default function PostList({ posts = SAMPLE_POSTS }: PostListProps) {
   return (
     <div>
-      {SAMPLE_POSTS.map((post) => (
+      {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
     </div>

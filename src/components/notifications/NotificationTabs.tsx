@@ -1,19 +1,23 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
-const tabs = ["All", "Mentions"];
+const tabs = ["All", "Mentions"] as const;
 
-export default function NotificationTabs() {
-  const [activeTab, setActiveTab] = useState("All");
+type Tab = (typeof tabs)[number];
 
+interface NotificationTabsProps {
+  activeTab: Tab;
+  onTabChange: (tab: Tab) => void;
+}
+
+export default function NotificationTabs({ activeTab, onTabChange }: NotificationTabsProps) {
   return (
     <div className="flex border-b border-gray-800">
       {tabs.map((tab) => (
         <button
           key={tab}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => onTabChange(tab)}
           className={cn(
             "flex-1 py-4 hover:bg-white/[0.03] transition relative",
             activeTab === tab && "font-bold"

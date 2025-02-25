@@ -12,7 +12,7 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
     actor: {
       name: 'John Doe',
       username: 'johndoe',
-      avatar: '/avatars/john.jpg'
+      avatar: 'https://api.randomx.ai/avatar/johndoe'
     },
     post: {
       id: '1',
@@ -27,7 +27,7 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
     actor: {
       name: 'Jane Smith',
       username: 'janesmith',
-      avatar: '/avatars/jane.jpg'
+      avatar: 'https://api.randomx.ai/avatar/janesmith'
     },
     post: {
       id: '2',
@@ -42,7 +42,7 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
     actor: {
       name: 'Tech Enthusiast',
       username: 'techlover',
-      avatar: '/avatars/tech.jpg'
+      avatar: 'https://api.randomx.ai/avatar/techlover'
     }
   },
   {
@@ -53,7 +53,7 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
     actor: {
       name: 'Product Guru',
       username: 'prodguru',
-      avatar: '/avatars/guru.jpg'
+      avatar: 'https://api.randomx.ai/avatar/prodguru'
     },
     post: {
       id: '4',
