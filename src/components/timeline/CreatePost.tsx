@@ -99,19 +99,29 @@ export default function CreatePost({ onPost }: CreatePostProps) {
 
   // Fetch random GIFs initially
   useEffect(() => {
-    fetchGifs('trending');
+    fetchGifs("trending");
   }, []);
 
   const fetchGifs = async (query: string) => {
     if (!query) return;
-    const response = await fetch(`https://g.tenor.com/v1/search?q=${query}&key=LIVDSRZULELA&limit=20`);
+    const response = await fetch(
+      `https://g.tenor.com/v1/search?q=${query}&key=LIVDSRZULELA&limit=20`,
+    );
     const data = await response.json();
-    setGifSearchResults(data.results.map((result: any) => result.media[0].gif.url));
+    setGifSearchResults(
+      data.results.map(
+        (result: { media: { gif: { url: string } }[] }) =>
+          result.media[0].gif.url,
+      ),
+    );
   };
 
-  const debounce = (func: Function, delay: number) => {
+  const debounce = <T extends (...args: string[]) => void>(
+    func: T,
+    delay: number,
+  ) => {
     let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (...args: Parameters<T>) => {
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         func(...args);
@@ -119,7 +129,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
     };
   };
 
-  const debouncedFetchGifs = debounce(fetchGifs, 300);
+  const debouncedFetchGifs = debounce((query: string) => fetchGifs(query), 300);
 
   const handleGifSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     debouncedFetchGifs(e.target.value);
@@ -290,7 +300,10 @@ export default function CreatePost({ onPost }: CreatePostProps) {
               </div>
               <button
                 onClick={handlePost}
-                disabled={(!content.trim() && !selectedGif) || content.length > MAX_CHARS}
+                disabled={
+                  (!content.trim() && !selectedGif) ||
+                  content.length > MAX_CHARS
+                }
                 className="bg-brand px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand/90 transition"
               >
                 Post
@@ -356,19 +369,31 @@ export default function CreatePost({ onPost }: CreatePostProps) {
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Search GIFs</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Search GIFs
+                </h3>
                 <button
                   onClick={() => setShowGifPicker(false)}
                   className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
                   aria-label="Close GIF picker"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
               </div>
-              
+
               <div className="mb-4">
                 <input
                   type="text"
@@ -382,8 +407,8 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                   }}
                 />
               </div>
-              
-              <div 
+
+              <div
                 className="overflow-y-auto flex-1 pr-1"
                 style={{
                   scrollbarWidth: "thin",
@@ -392,12 +417,15 @@ export default function CreatePost({ onPost }: CreatePostProps) {
               >
                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                   {gifSearchResults.map((gifUrl) => (
-                    <img
+                    <Image
                       key={gifUrl}
                       src={gifUrl}
                       alt="GIF"
                       className="cursor-pointer rounded-lg object-cover w-full h-32 hover:opacity-90 transition-opacity"
                       onClick={() => handleGifSelect(gifUrl)}
+                      width={150}
+                      height={128}
+                      unoptimized
                     />
                   ))}
                 </div>
