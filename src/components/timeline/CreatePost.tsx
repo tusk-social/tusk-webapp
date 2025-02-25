@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { ImageIcon, SmileIcon, FilmIcon } from "lucide-react";
+import { ImageIcon, SmileIcon, ImagePlayIcon } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
@@ -285,7 +285,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                   onClick={() => setShowGifPicker(!showGifPicker)}
                   className="p-2 hover:bg-brand/20 rounded-full transition"
                 >
-                  <FilmIcon className="w-5 h-5 text-brand" />
+                  <ImagePlayIcon className="w-5 h-5 text-brand" />
                 </button>
               </div>
               <button
@@ -326,80 +326,81 @@ export default function CreatePost({ onPost }: CreatePostProps) {
           <div
             style={{
               position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
               zIndex: 100,
-              backgroundColor: "rgba(17, 24, 39, 0.95)",
-              padding: "1.5rem",
-              borderRadius: "0.75rem",
-              width: "90%",
-              maxWidth: "500px",
-              maxHeight: "80vh",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-              backdropFilter: "blur(8px)",
-              display: "flex",
-              flexDirection: "column",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              backdropFilter: "blur(10px)",
             }}
+            onClick={() => setShowGifPicker(false)}
           >
-            <div 
+            <div
               style={{
                 position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: -1,
-              }}
-              onClick={() => setShowGifPicker(false)}
-            />
-            
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Search GIFs</h3>
-              <button 
-                onClick={() => setShowGifPicker(false)}
-                className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
-                aria-label="Close GIF picker"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search GIFs"
-                ref={gifSearchInputRef}
-                onChange={handleGifSearchChange}
-                autoFocus
-                className="w-full p-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent placeholder-gray-400 transition-all"
-                style={{
-                  backdropFilter: "blur(4px)",
-                }}
-              />
-            </div>
-            
-            <div 
-              className="overflow-y-auto flex-1 pr-1"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: "#4b5563 #1f2937",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 101,
+                backgroundColor: "rgba(17, 24, 39, 0.95)",
+                padding: "1.5rem",
+                borderRadius: "0.75rem",
+                width: "90%",
+                maxWidth: "500px",
+                maxHeight: "80vh",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
-                {gifSearchResults.map((gifUrl) => (
-                  <img
-                    key={gifUrl}
-                    src={gifUrl}
-                    alt="GIF"
-                    className="cursor-pointer rounded-lg object-cover w-full h-32 hover:opacity-90 transition-opacity"
-                    onClick={() => handleGifSelect(gifUrl)}
-                  />
-                ))}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Search GIFs</h3>
+                <button
+                  onClick={() => setShowGifPicker(false)}
+                  className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
+                  aria-label="Close GIF picker"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search GIFs"
+                  ref={gifSearchInputRef}
+                  onChange={handleGifSearchChange}
+                  autoFocus
+                  className="w-full p-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent placeholder-gray-400 transition-all"
+                  style={{
+                    backdropFilter: "blur(4px)",
+                  }}
+                />
+              </div>
+              
+              <div 
+                className="overflow-y-auto flex-1 pr-1"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#4b5563 #1f2937",
+                }}
+              >
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+                  {gifSearchResults.map((gifUrl) => (
+                    <img
+                      key={gifUrl}
+                      src={gifUrl}
+                      alt="GIF"
+                      className="cursor-pointer rounded-lg object-cover w-full h-32 hover:opacity-90 transition-opacity"
+                      onClick={() => handleGifSelect(gifUrl)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>,
