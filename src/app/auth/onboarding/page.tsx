@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import SplitLayout from "@/components/layouts/SplitLayout";
+import SplitLayout from "@/components/layout/SplitLayout";
 
 export default function OnboardingPage() {
   const router = useRouter();

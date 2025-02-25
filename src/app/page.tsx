@@ -1,5 +1,5 @@
 "use client";
-import SplitLayout from "@/components/layouts/SplitLayout";
+import SplitLayout from "@/components/layout/SplitLayout";
 import { useRouter } from "next/navigation";
 import AppLayout from "@/components/layout/AppLayout";
 import CreatePost from "@/components/timeline/CreatePost";
