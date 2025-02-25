@@ -1,4 +1,4 @@
-import { Post } from "@/types/post";
+import { Post, PostType } from "@/types/post";
 
 export const SAMPLE_POST: Post = {
   id: "1",
@@ -20,7 +20,7 @@ export const SAMPLE_POST: Post = {
   comments: [
     {
       id: "comment1",
-      type: "text",
+      type: "text" as PostType,
       content: "This is amazing! Looking forward to using it. 🎉",
       author: {
         name: "Jane Smith",
@@ -37,7 +37,7 @@ export const SAMPLE_POST: Post = {
     },
     {
       id: "comment2",
-      type: "text",
+      type: "text" as PostType,
       content:
         "Great work! The UI looks really clean. How long did it take to build?",
       author: {

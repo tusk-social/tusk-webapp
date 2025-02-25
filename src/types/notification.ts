@@ -1,8 +1,13 @@
-export type NotificationType = 'like' | 'repost' | 'follow' | 'mention' | 'reply';
+export type NotificationType =
+  | "like"
+  | "repost"
+  | "follow"
+  | "mention"
+  | "reply";
 
 export interface Notification {
   id: string;
-  type: NotificationType;
+  type: NotificationType | string;
   isRead: boolean;
   createdAt: string;
   actor: {
@@ -15,4 +20,4 @@ export interface Notification {
     content: string;
     image?: string;
   };
-} 
+}
