@@ -1,6 +1,6 @@
 "use client";
 
-import { Post } from "@/types/post";
+// import { Post } from "@/types/post";
 import PostCard from "@/components/timeline/PostCard";
 import { EXPLORE_POSTS } from "@/services/mockData";
 

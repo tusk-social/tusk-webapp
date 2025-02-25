@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Post } from "@/types/post";
 import { useState, useEffect, useCallback } from "react";
@@ -13,7 +13,10 @@ interface CommentListProps {
   initialComments?: Post[];
 }
 
-export default function CommentList({ postId, initialComments = [] }: CommentListProps) {
+export default function CommentList({
+  postId,
+  initialComments = [],
+}: CommentListProps) {
   const router = useRouter();
   const [comments, setComments] = useState<Post[]>(initialComments);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,14 +28,14 @@ export default function CommentList({ postId, initialComments = [] }: CommentLis
     try {
       setIsLoading(true);
       const response = await fetchComments(postId, page);
-      
-      setComments(prev => 
-        page === 1 ? response.comments : [...prev, ...response.comments]
+
+      setComments((prev) =>
+        page === 1 ? response.comments : [...prev, ...response.comments],
       );
       setHasMore(response.hasMore);
     } catch (error) {
-      toast.error('Failed to load comments');
-      console.error('Error loading comments:', error);
+      toast.error("Failed to load comments");
+      console.error("Error loading comments:", error);
     } finally {
       setIsLoading(false);
     }
@@ -46,28 +49,28 @@ export default function CommentList({ postId, initialComments = [] }: CommentLis
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
-  const handleSubmit = async (content: string, image: string | null) => {
+  const handleSubmit = async (content: string) => {
     try {
       setIsSubmitting(true);
       const newComment = await createComment(postId, content);
-      
+
       // Optimistically update the UI
-      setComments(prev => [newComment, ...prev]);
-      
+      setComments((prev) => [newComment, ...prev]);
+
       // Refresh the page to get the latest data
       router.refresh();
-      
-      toast.success('Comment posted successfully!');
+
+      toast.success("Comment posted successfully!");
     } catch (error) {
-      toast.error('Failed to post comment');
-      console.error('Error posting comment:', error);
-      
+      toast.error("Failed to post comment");
+      console.error("Error posting comment:", error);
+
       // Remove the optimistically added comment
-      setComments(prev => prev.filter(comment => comment.id !== 'temp'));
+      setComments((prev) => prev.filter((comment) => comment.id !== "temp"));
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +98,7 @@ export default function CommentList({ postId, initialComments = [] }: CommentLis
             disabled={isLoading}
             className="text-brand hover:text-brand/90 font-medium disabled:opacity-50"
           >
-            {isLoading ? 'Loading...' : 'Show more replies'}
+            {isLoading ? "Loading..." : "Show more replies"}
           </button>
         </div>
       )}
@@ -108,4 +111,4 @@ export default function CommentList({ postId, initialComments = [] }: CommentLis
       )}
     </div>
   );
-} 
+}

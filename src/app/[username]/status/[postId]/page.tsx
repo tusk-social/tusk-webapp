@@ -1,16 +1,9 @@
-import { Post } from "@/types/post";
+// import { Post } from "@/types/post";
 import AppLayout from "@/components/layout/AppLayout";
 import PostDetail from "@/components/post/PostDetail";
 import { SAMPLE_POST } from "@/services/mockData";
 
-interface Props {
-  params: {
-    username: string;
-    postId: string;
-  };
-}
-
-export default function PostPage({ params }: Props) {
+export default function PostPage() {
   // In a real app, we would fetch the post data here based on username and postId
   const post = SAMPLE_POST;
 
@@ -24,4 +17,4 @@ export default function PostPage({ params }: Props) {
       </main>
     </AppLayout>
   );
-} 
+}

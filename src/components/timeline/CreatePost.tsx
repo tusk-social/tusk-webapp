@@ -17,7 +17,7 @@ type EmojiPickerData = {
 
 interface Post {
   id: string;
-  type: 'text' | 'image';
+  type: "text" | "image";
   content: string;
   author: {
     name: string;
@@ -41,7 +41,6 @@ interface CreatePostProps {
 export default function CreatePost({ onPost }: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const [isPosting, setIsPosting] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -99,21 +98,21 @@ export default function CreatePost({ onPost }: CreatePostProps) {
 
     const newPost: Post = {
       id: Math.random().toString(36).substring(7),
-      type: image ? 'image' : 'text',
+      type: image ? "image" : "text",
       content: content.trim(),
       author: {
-        name: 'Current User',
-        username: 'currentuser',
-        avatar: 'https://api.randomx.ai/avatar/currentuser'
+        name: "Current User",
+        username: "currentuser",
+        avatar: "https://api.randomx.ai/avatar/currentuser",
       },
-      createdAt: 'now',
+      createdAt: "now",
       stats: {
         replies: 0,
         reposts: 0,
         likes: 0,
-        views: 0
+        views: 0,
       },
-      ...(image && { images: [image] })
+      ...(image && { images: [image] }),
     };
 
     onPost(newPost);
@@ -133,7 +132,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       handlePost();
     }
   };
@@ -203,18 +202,20 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                     ref={fileInputRef}
                   />
                 </label>
-                <button 
+                <button
                   ref={emojiButtonRef}
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   className="p-2 hover:bg-brand/20 rounded-full transition"
                 >
                   <SmileIcon className="w-5 h-5 text-brand" />
                 </button>
-                
+
                 {content.length > 0 && (
                   <div className="flex items-center">
                     <div className="w-[2px] h-6 mx-2 bg-gray-800" />
-                    <span className={`text-sm ${content.length > MAX_CHARS ? 'text-red-500' : 'text-gray-500'}`}>
+                    <span
+                      className={`text-sm ${content.length > MAX_CHARS ? "text-red-500" : "text-gray-500"}`}
+                    >
                       {content.length}/{MAX_CHARS}
                     </span>
                   </div>
@@ -232,25 +233,26 @@ export default function CreatePost({ onPost }: CreatePostProps) {
         </div>
       </div>
 
-      {showEmojiPicker && createPortal(
-        <div
-          ref={emojiPickerRef}
-          style={{
-            position: 'absolute',
-            top: `${pickerPosition.top}px`,
-            left: `${pickerPosition.left}px`,
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-          }}
-        >
-          <Picker
-            data={data}
-            onEmojiSelect={handleEmojiSelect}
-            theme="dark"
-          />
-        </div>,
-        document.body
-      )}
+      {showEmojiPicker &&
+        createPortal(
+          <div
+            ref={emojiPickerRef}
+            style={{
+              position: "absolute",
+              top: `${pickerPosition.top}px`,
+              left: `${pickerPosition.left}px`,
+              transform: "translateX(-50%)",
+              zIndex: 50,
+            }}
+          >
+            <Picker
+              data={data}
+              onEmojiSelect={handleEmojiSelect}
+              theme="dark"
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

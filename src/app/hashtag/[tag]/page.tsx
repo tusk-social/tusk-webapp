@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import { use } from 'react';
+import { use } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import PostList from "@/components/timeline/PostList";
-import { Post } from "@/types/post";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { SAMPLE_POSTS } from "@/services/mockData";
@@ -17,8 +16,8 @@ interface HashtagPageProps {
 export default function HashtagPage({ params }: HashtagPageProps) {
   const resolvedParams = use(params);
   const tag = decodeURIComponent(resolvedParams.tag);
-  const filteredPosts = SAMPLE_POSTS.filter(post => 
-    post.content.toLowerCase().includes(`#${tag.toLowerCase()}`)
+  const filteredPosts = SAMPLE_POSTS.filter((post) =>
+    post.content.toLowerCase().includes(`#${tag.toLowerCase()}`),
   );
 
   return (
@@ -27,13 +26,17 @@ export default function HashtagPage({ params }: HashtagPageProps) {
         {/* Header */}
         <div className="sticky top-0 z-10 backdrop-blur-md bg-black/70 border-b border-gray-800">
           <div className="flex items-center gap-4 px-4 py-3">
-            <Link href="/" className="hover:bg-white/10 p-2 rounded-full transition">
+            <Link
+              href="/"
+              className="hover:bg-white/10 p-2 rounded-full transition"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
               <h1 className="text-xl font-bold">#{tag}</h1>
               <p className="text-sm text-gray-500">
-                {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'}
+                {filteredPosts.length}{" "}
+                {filteredPosts.length === 1 ? "post" : "posts"}
               </p>
             </div>
           </div>
@@ -53,4 +56,4 @@ export default function HashtagPage({ params }: HashtagPageProps) {
       </main>
     </AppLayout>
   );
-} 
+}
