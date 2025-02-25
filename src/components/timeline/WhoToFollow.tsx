@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
 import { WHO_TO_FOLLOW } from "@/services/mockData";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 
-// Extract UserToFollow into a separate component
 const UserToFollow = memo(
   ({
     user,
+    onFade,
   }: {
     user: {
       id: number;
@@ -14,9 +14,28 @@ const UserToFollow = memo(
       username: string;
       avatar: string;
     };
+    onFade: () => void;
   }) => {
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+
+    const handleFollowToggle = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setIsFollowing((prev) => !prev);
+      if (!isFollowing) {
+        setIsFading(true);
+        setTimeout(() => {
+          setIsFading(false);
+          onFade();
+        }, 1000);
+      }
+    };
+
+    // Apply fade-out effect
+    const userClass = `px-4 py-3 transition-opacity duration-500 ${isFading ? "opacity-0" : "opacity-100"} hover:bg-white/[0.03] cursor-pointer flex items-center justify-between`;
+
     return (
-      <div className="px-4 py-3 hover:bg-white/[0.03] transition cursor-pointer flex items-center justify-between">
+      <div className={userClass}>
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
             <Image
@@ -33,12 +52,9 @@ const UserToFollow = memo(
         </div>
         <button
           className="bg-white text-black px-4 py-1.5 rounded-full font-bold text-sm hover:bg-white/90"
-          onClick={(e) => {
-            e.stopPropagation();
-            // Follow logic would go here
-          }}
+          onClick={handleFollowToggle}
         >
-          Follow
+          {isFollowing ? "Following" : "Follow"}
         </button>
       </div>
     );
@@ -48,11 +64,27 @@ const UserToFollow = memo(
 UserToFollow.displayName = "UserToFollow";
 
 function WhoToFollow() {
+  const [users, setUsers] = useState(WHO_TO_FOLLOW);
+
+  const handleUserFade = (userId: number) => {
+    setUsers((prevUsers) => {
+      const remainingUsers = prevUsers.filter((user) => user.id !== userId);
+      const newUser = { ...remainingUsers[0], id: Math.random() }; // Simulate fetching a new user
+      return [...remainingUsers.slice(1), newUser];
+    });
+  };
+
   // Memoize the mapped users to prevent unnecessary re-renders
   const userItems = useMemo(
     () =>
-      WHO_TO_FOLLOW.map((user) => <UserToFollow key={user.id} user={user} />),
-    [], // Empty dependency array since WHO_TO_FOLLOW is static
+      users.map((user) => (
+        <UserToFollow
+          key={user.id}
+          user={user}
+          onFade={() => handleUserFade(user.id)}
+        />
+      )),
+    [users],
   );
 
   return (
