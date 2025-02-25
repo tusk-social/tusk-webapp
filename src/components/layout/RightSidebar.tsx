@@ -23,7 +23,7 @@ SearchInput.displayName = "SearchInput";
 
 function RightSidebar() {
   return (
-    <div className="w-[350px] sticky top-0 h-screen overflow-y-auto px-4 py-3 hidden lg:block">
+    <div className="w-[350px] sticky top-0 h-screen overflow-y-auto px-4 py-3 hidden lg:block right-sidebar">
       <SearchInput />
       <TrendingTopics />
       <WhoToFollow />

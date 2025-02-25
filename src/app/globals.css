@@ -34,3 +34,22 @@ input:focus,
 textarea:focus {
   border-color: #be3fd5 !important;
 }
+
+/* Custom scrollbar styles */
+.right-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.right-sidebar::-webkit-scrollbar-track {
+  background: #1f2937; /* Dark background */
+}
+
+.right-sidebar::-webkit-scrollbar-thumb {
+  background-color: #4a5568; /* Gray thumb */
+  border-radius: 10px;
+  border: 2px solid #1f2937; /* Padding around thumb */
+}
+
+.right-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #2d3748; /* Lighter gray on hover */
+}

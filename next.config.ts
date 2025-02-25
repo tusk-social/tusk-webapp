@@ -18,7 +18,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'newatlas-brightspot.s3.amazonaws.com',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.tenor.com',
+        pathname: '/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
