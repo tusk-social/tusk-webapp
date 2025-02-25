@@ -1,8 +1,17 @@
 "use client";
-import { Bell, Bookmark, Home, Mail, Search, User, PenSquare } from "lucide-react";
+import {
+  Bell,
+  Bookmark,
+  Home,
+  Mail,
+  Search,
+  User,
+  PenSquare,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { memo, useMemo } from "react";
 
 const menuItems = [
   { icon: Home, label: "Home", href: "/home" },
@@ -13,17 +22,75 @@ const menuItems = [
   { icon: User, label: "Profile", href: "/profile" },
 ];
 
-export default function LeftSidebar() {
+// Extract NavItem into a separate component
+const NavItem = memo(
+  ({
+    item,
+    isActive,
+  }: {
+    item: {
+      icon: React.ElementType;
+      label: string;
+      href: string;
+    };
+    isActive: boolean;
+  }) => {
+    const Icon = item.icon;
+
+    return (
+      <Link
+        href={item.href}
+        className={cn(
+          "flex items-center text-xl p-3 rounded-full transition-all duration-200 group",
+          "hover:bg-gray-900",
+          isActive && "font-bold text-brand",
+        )}
+      >
+        <div className="flex items-center gap-4 xl:gap-6">
+          <div className="relative">
+            <Icon
+              className={cn(
+                "w-6 h-6 transition-colors",
+                "group-hover:text-brand",
+                isActive && "text-brand",
+              )}
+            />
+            {item.label === "Notifications" && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                3
+              </span>
+            )}
+          </div>
+          <span className="text-lg">{item.label}</span>
+        </div>
+      </Link>
+    );
+  },
+);
+
+NavItem.displayName = "NavItem";
+
+function LeftSidebar() {
   const pathname = usePathname();
+
+  // Memoize the mapped navigation items
+  const navItems = useMemo(
+    () =>
+      menuItems.map((item) => (
+        <NavItem
+          key={item.href}
+          item={item}
+          isActive={pathname === item.href}
+        />
+      )),
+    [pathname], // Re-compute only when pathname changes
+  );
 
   return (
     <div className="w-[275px] h-screen sticky top-0 flex flex-col px-2 lg:flex hidden">
       <div className="flex flex-col flex-1 gap-2">
         {/* Logo */}
-        <Link 
-          href="/home" 
-          className="p-4 hover:opacity-80 transition-opacity"
-        >
+        <Link href="/home" className="p-4 hover:opacity-80 transition-opacity">
           <div className="relative w-8 h-8">
             <div className="w-full h-full rounded-lg bg-gradient-to-br from-brand via-purple-400 to-brand animate-gradient" />
             <span className="absolute inset-0 flex items-center justify-center font-bold text-white text-xl">
@@ -33,42 +100,7 @@ export default function LeftSidebar() {
         </Link>
 
         {/* Navigation */}
-        <nav className="space-y-1 mt-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center text-xl p-3 rounded-full transition-all duration-200 group",
-                  "hover:bg-gray-900",
-                  isActive && "font-bold text-brand"
-                )}
-              >
-                <div className="flex items-center gap-4 xl:gap-6">
-                  <div className="relative">
-                    <Icon 
-                      className={cn(
-                        "w-6 h-6 transition-colors",
-                        "group-hover:text-brand",
-                        isActive && "text-brand"
-                      )} 
-                    />
-                    {item.label === "Notifications" && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full text-[10px] flex items-center justify-center text-white font-bold">
-                        3
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-lg">{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
+        <nav className="space-y-1 mt-2">{navItems}</nav>
 
         {/* Post Button */}
         <button className="w-[90%] bg-brand hover:bg-brand/90 text-white px-6 py-4 rounded-full font-bold text-lg transition mt-4 relative group">
@@ -92,4 +124,6 @@ export default function LeftSidebar() {
       </div>
     </div>
   );
-} 
+}
+
+export default memo(LeftSidebar);

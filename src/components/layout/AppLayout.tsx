@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import RightSidebar from "@/components/layout/RightSidebar";
+import { memo } from "react";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="flex max-w-[1300px] mx-auto">
@@ -16,4 +17,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
     </div>
   );
-} 
+}
+
+export default memo(AppLayout);
