@@ -1,29 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { TRENDING_TOPICS } from "@/services/mockData";
 
-const TRENDING_TOPICS = [
-  {
-    topic: "Technology",
-    posts: "125.4K",
-    hashtag: "#tech",
-  },
-  {
-    topic: "Web Development",
-    posts: "85.2K",
-    hashtag: "#webdev",
-  },
-  {
-    topic: "Artificial Intelligence",
-    posts: "92.1K",
-    hashtag: "#AI",
-  },
-  {
-    topic: "Open Source",
-    posts: "45.6K",
-    hashtag: "#opensource",
-  },
-];
 
 export default function TrendingTopics() {
   return (

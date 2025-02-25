@@ -1,26 +1,27 @@
 import Image from 'next/image';
+import { WHO_TO_FOLLOW } from "@/services/mockData";
 
 export default function WhoToFollow() {
   return (
     <div className="bg-gray-900 rounded-2xl mt-4">
       <h2 className="font-bold text-xl px-4 pt-3 pb-2">Who to follow</h2>
       <div>
-        {[1, 2, 3].map((user) => (
+        {WHO_TO_FOLLOW.map((user) => (
           <div 
-            key={user} 
+            key={user.id} 
             className="px-4 py-3 hover:bg-white/[0.03] transition cursor-pointer flex items-center justify-between"
           >
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
                 <Image
-                  src={`https://api.randomx.ai/avatar/user${user}`}
+                  src={user.avatar}
                   alt="User avatar"
                   width={40}
                   height={40}
                 />
               </div>
               <div>
-                <p className="font-bold text-base">User Name</p>
+                <p className="font-bold text-base">{user.name}</p>
                 <p className="text-gray-500 text-sm">@username</p>
               </div>
             </div>

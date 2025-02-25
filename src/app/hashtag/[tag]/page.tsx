@@ -6,43 +6,7 @@ import PostList from "@/components/timeline/PostList";
 import { Post } from "@/types/post";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-
-const SAMPLE_POSTS: Post[] = [
-  {
-    id: '1',
-    type: 'text',
-    content: 'Exploring the latest #webdev trends! 🚀 Building with @nextjs and loving it.',
-    author: {
-      name: 'Tech Explorer',
-      username: 'techexplorer',
-      avatar: 'https://api.randomx.ai/avatar/techexplorer'
-    },
-    createdAt: '2h',
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240
-    }
-  },
-  {
-    id: '2',
-    type: 'text',
-    content: 'Just deployed my first #webdev project! Check it out at https://myproject.com',
-    author: {
-      name: 'Code Newbie',
-      username: 'codenewbie',
-      avatar: 'https://api.randomx.ai/avatar/codenewbie'
-    },
-    createdAt: '5h',
-    stats: {
-      replies: 8,
-      reposts: 2,
-      likes: 15,
-      views: 500
-    }
-  }
-];
+import { SAMPLE_POSTS } from "@/services/mockData";
 
 interface HashtagPageProps {
   params: Promise<{

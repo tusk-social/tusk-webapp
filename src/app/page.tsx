@@ -6,30 +6,7 @@ import CreatePost from "@/components/timeline/CreatePost";
 import PostList from "@/components/timeline/PostList";
 import { useState } from "react";
 import { Post } from "@/types/post";
-
-const INITIAL_POSTS: Post[] = [
-  {
-    id: '1',
-    type: 'text',
-    content: `Just launched Tusk - a modern Twitter alternative! 🚀
-
-Built with @chopinframework and @celestia, for #Mammothon. What do you think? #webdev
-`,
-    author: {
-      name: 'John Doe',
-      username: 'johndoe',
-      avatar: 'https://api.randomx.ai/avatar/johndoe'
-    },
-    createdAt: '2h',
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240
-    }
-  },
-  // ... other initial posts
-];
+import { INITIAL_POSTS } from "@/services/mockData";
 
 export default function LandingPage() {
   const router = useRouter();

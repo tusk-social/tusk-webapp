@@ -4,40 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import NotificationList from "@/components/notifications/NotificationList";
 import NotificationTabs from "@/components/notifications/NotificationTabs";
 import { useState } from "react";
-
-// Using the sample notifications from the original NotificationList component
-const SAMPLE_NOTIFICATIONS = [
-  {
-    id: '1',
-    type: 'like',
-    isRead: false,
-    createdAt: '2h',
-    actor: {
-      name: 'John Doe',
-      username: 'johndoe',
-      avatar: 'https://api.randomx.ai/avatar/currentuser'
-    },
-    post: {
-      id: '1',
-      content: 'This is an amazing post!',
-    }
-  },
-  {
-    id: '4',
-    type: 'mention',
-    isRead: true,
-    createdAt: '2d',
-    actor: {
-      name: 'Product Guru',
-      username: 'prodguru',
-      avatar: 'https://api.randomx.ai/avatar/currentuser'
-    },
-    post: {
-      id: '4',
-      content: 'Hey @username, what do you think about this?',
-    }
-  }
-];
+import { SAMPLE_NOTIFICATIONS } from "@/services/mockData";
 
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<"All" | "Mentions">("All");

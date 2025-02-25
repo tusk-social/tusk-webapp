@@ -1,47 +1,7 @@
 'use client';
 
-import { Post } from "@/types/post";
 import PostCard from "@/components/timeline/PostCard";
-
-const SAMPLE_BOOKMARKS: Post[] = [
-  {
-    id: '1',
-    type: 'text',
-    content: 'This is a bookmarked post about #coding and #webdev',
-    author: {
-      name: 'Tech Enthusiast',
-      username: 'techlover',
-      avatar: 'https://api.randomx.ai/avatar/techlover'
-    },
-    createdAt: '2h',
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240
-    },
-    isBookmarked: true
-  },
-  {
-    id: '2',
-    type: 'image',
-    content: 'Saved this amazing design inspiration for later! 🎨',
-    author: {
-      name: 'Design Master',
-      username: 'designpro',
-      avatar: 'https://api.randomx.ai/avatar/designpro'
-    },
-    createdAt: '5h',
-    images: ['https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg'],
-    stats: {
-      replies: 8,
-      reposts: 15,
-      likes: 122,
-      views: 1800
-    },
-    isBookmarked: true
-  }
-];
+import { SAMPLE_BOOKMARKS } from "@/services/mockData";
 
 export default function BookmarksList() {
   if (SAMPLE_BOOKMARKS.length === 0) {

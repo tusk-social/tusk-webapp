@@ -3,69 +3,14 @@
 import { Notification } from "@/types/notification";
 import NotificationItem from "./NotificationItem";
 
-const SAMPLE_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    type: 'like',
-    isRead: false,
-    createdAt: '2h',
-    actor: {
-      name: 'John Doe',
-      username: 'johndoe',
-      avatar: 'https://api.randomx.ai/avatar/johndoe'
-    },
-    post: {
-      id: '1',
-      content: 'This is an amazing post!',
-    }
-  },
-  {
-    id: '2',
-    type: 'repost',
-    isRead: true,
-    createdAt: '5h',
-    actor: {
-      name: 'Jane Smith',
-      username: 'janesmith',
-      avatar: 'https://api.randomx.ai/avatar/janesmith'
-    },
-    post: {
-      id: '2',
-      content: 'Check out this awesome project!',
-    }
-  },
-  {
-    id: '3',
-    type: 'follow',
-    isRead: false,
-    createdAt: '1d',
-    actor: {
-      name: 'Tech Enthusiast',
-      username: 'techlover',
-      avatar: 'https://api.randomx.ai/avatar/techlover'
-    }
-  },
-  {
-    id: '4',
-    type: 'mention',
-    isRead: true,
-    createdAt: '2d',
-    actor: {
-      name: 'Product Guru',
-      username: 'prodguru',
-      avatar: 'https://api.randomx.ai/avatar/prodguru'
-    },
-    post: {
-      id: '4',
-      content: 'Hey @username, what do you think about this?',
-    }
-  }
-];
+interface NotificationListProps {
+  notifications: Notification[];
+}
 
-export default function NotificationList() {
+export default function NotificationList({ notifications }: NotificationListProps) {
   return (
     <div>
-      {SAMPLE_NOTIFICATIONS.map((notification) => (
+      {notifications.map((notification) => (
         <NotificationItem key={notification.id} notification={notification} />
       ))}
     </div>

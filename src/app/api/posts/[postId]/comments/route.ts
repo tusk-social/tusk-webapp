@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { SAMPLE_COMMENTS } from "@/services/mockData";
 
 // Validation schema for comment creation
 const createCommentSchema = z.object({
@@ -12,9 +13,6 @@ const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(20),
 });
-
-// Sample data store (replace with your database)
-const SAMPLE_COMMENTS = new Map<string, any[]>();
 
 export async function GET(
   request: NextRequest,

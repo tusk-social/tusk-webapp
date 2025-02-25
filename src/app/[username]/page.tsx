@@ -4,20 +4,21 @@ import { ArrowLeft, Calendar, Link as LinkIcon, MapPin } from "lucide-react";
 import Link from "next/link";
 import PostList from "@/components/timeline/PostList";
 import AppLayout from "@/components/layout/AppLayout";
+import { MOCK_USER } from "@/services/mockData";
 
 // This will be replaced with actual data fetching
-const MOCK_USER = {
-  name: "John Doe",
-  username: "johndoe",
-  avatar: "https://api.randomx.ai/avatar/johndoe",
-  banner: "/banners/default.jpg",
-  bio: "Software engineer by day, dreamer by night 💫\nBuilding the future, one line of code at a time.",
-  location: "San Francisco, CA",
-  website: "https://johndoe.dev",
-  joinedDate: "March 2024",
-  following: 420,
-  followers: 69,
-};
+// const MOCK_USER = {
+//   name: "John Doe",
+//   username: "johndoe",
+//   avatar: "https://api.randomx.ai/avatar/johndoe",
+//   banner: "/banners/default.jpg",
+//   bio: "Software engineer by day, dreamer by night 💫\nBuilding the future, one line of code at a time.",
+//   location: "San Francisco, CA",
+//   website: "https://johndoe.dev",
+//   joinedDate: "March 2024",
+//   following: 420,
+//   followers: 69,
+// };
 
 //export default async function ProfilePage({ params }: { params: { username: string } }) {
 export default async function ProfilePage() {
