@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { ImageIcon, SmileIcon, ImagePlayIcon, Laugh } from "lucide-react";
+import {
+  ImageIcon,
+  SmileIcon,
+  ImagePlayIcon,
+  Laugh,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
@@ -9,6 +16,7 @@ import Image from "next/image";
 import { createPortal } from "react-dom";
 import { USERS_LIST } from "@/services/mockData";
 import { useMemeModal } from "@/context/MemeModalContext";
+import { toast } from "react-hot-toast";
 
 const MAX_CHARS = 280;
 
@@ -74,29 +82,8 @@ export default function CreatePost({ onPost }: CreatePostProps) {
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const mentionSuggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Add CSS for mention styling
-  useEffect(() => {
-    // Add a style tag for the mention-active class if it doesn't exist
-    if (!document.getElementById("mention-styles")) {
-      const styleTag = document.createElement("style");
-      styleTag.id = "mention-styles";
-      styleTag.innerHTML = `
-        .mention-active {
-          background-color: rgba(190, 63, 213, 0.05);
-          border-radius: 0.25rem;
-        }
-      `;
-      document.head.appendChild(styleTag);
-    }
-
-    return () => {
-      // Clean up the style tag when component unmounts
-      const styleTag = document.getElementById("mention-styles");
-      if (styleTag) {
-        styleTag.remove();
-      }
-    };
-  }, []);
+  // Add new state variables for post enhancement
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -379,6 +366,52 @@ export default function CreatePost({ onPost }: CreatePostProps) {
     setSelectedGif(null);
   };
 
+  // Simplified enhance function
+  const enhancePost = async () => {
+    if (!content.trim()) {
+      toast.error("Please enter some content to enhance");
+      return;
+    }
+
+    try {
+      setIsEnhancing(true);
+      console.log("Enhancing post with content:", content);
+
+      const response = await fetch("/api/enhance-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content,
+        }),
+      });
+
+      console.log("API response status:", response.status);
+      const data = await response.json();
+      console.log("API response data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to enhance post");
+      }
+
+      if (data.enhancedPost) {
+        console.log("Setting enhanced content:", data.enhancedPost);
+        setContent(data.enhancedPost);
+        toast.success("Post enhanced!");
+      } else {
+        throw new Error("No enhanced content returned");
+      }
+    } catch (err: any) {
+      console.error("Enhancement error:", err);
+      toast.error(
+        "Failed to enhance post: " + (err.message || "Unknown error"),
+      );
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   return (
     <div className="border-b border-gray-800 py-4 px-4 relative">
       {/* Glow Effect */}
@@ -492,6 +525,28 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                   title="Create a meme"
                 >
                   <Laugh className="w-5 h-5 text-brand" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log("Enhance button clicked");
+                    enhancePost();
+                  }}
+                  disabled={isEnhancing || !content.trim()}
+                  className={`transition-colors p-2 rounded-full hover:bg-gray-800/50 relative ${
+                    isEnhancing || !content.trim()
+                      ? "text-gray-400"
+                      : "text-brand hover:text-brand"
+                  }`}
+                  title="Enhance your post with AI"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  {isEnhancing && (
+                    <span className="absolute -top-1 -right-1">
+                      <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                    </span>
+                  )}
                 </button>
               </div>
               <button

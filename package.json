@@ -31,6 +31,7 @@
     "emoji-picker-react": "^4.12.0",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
+    "openai": "^4.85.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.5.2",
