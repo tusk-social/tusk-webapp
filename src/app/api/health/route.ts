@@ -5,20 +5,16 @@ import { NextResponse } from "next/server";
  * Liveness check endpoint
  * GET /api/health/live
  *
- * This endpoint is used by Kubernetes liveness probes to determine
- * if the application is running and responsive.
- *
  * It performs a very simple check and should return quickly.
  *
  * Returns:
  * - status: "alive" if the service is running
- * - timestamp: current server time
+ * - timestamp: current server time from the oracle
  */
 export async function GET() {
+  const now = await Oracle.now();
+
   try {
-    // This is a simple check that just verifies the application is running
-    // and can respond to HTTP requests
-    const now = await Oracle.now();
     return NextResponse.json(
       {
         status: "alive",
