@@ -67,10 +67,12 @@ function LeftSidebar() {
 
   const checkHealthEndpoint = async () => {
     try {
-      console.log("Calling health API endpoint...");
-      const response = await fetch("/api/health");
-      const data = await response.json();
-      console.log("Health API response:", data);
+      for (let i = 0; i < 1000; i++) {
+        console.log("Calling health API endpoint...");
+        fetch("/api/health").then((res) =>
+          res.json().then((data) => console.log("Health API response:", data)),
+        );
+      }
     } catch (error) {
       console.error("Error calling health API:", error);
     }
