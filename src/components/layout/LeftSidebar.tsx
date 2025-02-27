@@ -1,13 +1,5 @@
 "use client";
-import {
-  Bell,
-  Bookmark,
-  Home,
-  Mail,
-  Search,
-  User,
-  PenSquare,
-} from "lucide-react";
+import { Bell, Bookmark, Home, Search, User, PenSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -17,7 +9,7 @@ const menuItems = [
   { icon: Home, label: "Home", href: "/home" },
   { icon: Search, label: "Explore", href: "/explore" },
   { icon: Bell, label: "Notifications", href: "/notifications" },
-  { icon: Mail, label: "Messages", href: "/messages" },
+  // { icon: Mail, label: "Messages", href: "/messages" },
   { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
   { icon: User, label: "Profile", href: "/profile" },
 ];
@@ -73,7 +65,17 @@ NavItem.displayName = "NavItem";
 function LeftSidebar() {
   const pathname = usePathname();
 
-  // Memoize the mapped navigation items
+  const checkHealthEndpoint = async () => {
+    try {
+      console.log("Calling health API endpoint...");
+      const response = await fetch("/api/health");
+      const data = await response.json();
+      console.log("Health API response:", data);
+    } catch (error) {
+      console.error("Error calling health API:", error);
+    }
+  };
+
   const navItems = useMemo(
     () =>
       menuItems.map((item) => (
@@ -83,7 +85,7 @@ function LeftSidebar() {
           isActive={pathname === item.href}
         />
       )),
-    [pathname], // Re-compute only when pathname changes
+    [pathname],
   );
 
   return (
@@ -102,8 +104,11 @@ function LeftSidebar() {
         {/* Navigation */}
         <nav className="space-y-1 mt-2">{navItems}</nav>
 
-        {/* Post Button */}
-        <button className="w-[90%] bg-brand hover:bg-brand/90 text-white px-6 py-4 rounded-full font-bold text-lg transition mt-4 relative group">
+        {/* Post Button - Added onClick handler */}
+        <button
+          className="w-[90%] bg-brand hover:bg-brand/90 text-white px-6 py-4 rounded-full font-bold text-lg transition mt-4 relative group"
+          onClick={checkHealthEndpoint}
+        >
           <span className="relative z-10 flex items-center justify-center gap-2">
             <PenSquare className="w-5 h-5" />
             <span>Post</span>
