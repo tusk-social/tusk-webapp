@@ -15,6 +15,7 @@ interface MemeTemplate {
 
 interface MemeGeneratorProps {
   onMemeGenerated: (imageUrl: string) => void;
+  onClose: () => void;
 }
 
 export default function MemeGenerator({ onMemeGenerated }: MemeGeneratorProps) {
@@ -33,7 +34,6 @@ export default function MemeGenerator({ onMemeGenerated }: MemeGeneratorProps) {
     async function fetchMemeTemplates() {
       try {
         setLoading(true);
-        // Use our new API route instead of directly calling imgflip
         const response = await fetch("/api/meme/templates");
         const data = await response.json();
 
