@@ -17,6 +17,7 @@ import { createPortal } from "react-dom";
 import { USERS_LIST } from "@/services/mockData";
 import { useMemeModal } from "@/context/MemeModalContext";
 import { toast } from "react-hot-toast";
+import Tooltip from "@/components/ui/Tooltip";
 
 const MAX_CHARS = 280;
 
@@ -412,6 +413,10 @@ export default function CreatePost({ onPost }: CreatePostProps) {
     }
   };
 
+  // Define a common button style class
+  const iconButtonClass =
+    "p-2 hover:bg-brand/20 rounded-full transition inline-flex items-center justify-center";
+
   return (
     <div className="border-b border-gray-800 py-4 px-4 relative">
       {/* Glow Effect */}
@@ -482,23 +487,69 @@ export default function CreatePost({ onPost }: CreatePostProps) {
 
             <div className="flex items-center justify-between pt-4">
               <div className="flex items-center space-x-2">
-                <label className="p-2 hover:bg-brand/20 rounded-full transition cursor-pointer">
-                  <ImageIcon className="w-5 h-5 text-brand" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    ref={fileInputRef}
-                  />
-                </label>
-                <button
-                  ref={emojiButtonRef}
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className="p-2 hover:bg-brand/20 rounded-full transition"
-                >
-                  <SmileIcon className="w-5 h-5 text-brand" />
-                </button>
+                <Tooltip text="Upload image">
+                  <label className={iconButtonClass + " cursor-pointer"}>
+                    <ImageIcon className="w-5 h-5 text-brand" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      ref={fileInputRef}
+                    />
+                  </label>
+                </Tooltip>
+
+                <Tooltip text="Add emoji">
+                  <button
+                    ref={emojiButtonRef}
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={iconButtonClass}
+                  >
+                    <SmileIcon className="w-5 h-5 text-brand" />
+                  </button>
+                </Tooltip>
+
+                <Tooltip text="Add GIF">
+                  <button
+                    onClick={() => setShowGifPicker(!showGifPicker)}
+                    className={iconButtonClass}
+                  >
+                    <ImagePlayIcon className="w-5 h-5 text-brand" />
+                  </button>
+                </Tooltip>
+
+                <Tooltip text="Create meme">
+                  <button
+                    onClick={() => openMemeModal(handleMemeGenerated)}
+                    className={iconButtonClass}
+                  >
+                    <Laugh className="w-5 h-5 text-brand" />
+                  </button>
+                </Tooltip>
+
+                <Tooltip text="Enhance with AI">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log("Enhance button clicked");
+                      enhancePost();
+                    }}
+                    disabled={isEnhancing || !content.trim()}
+                    className={`${iconButtonClass} ${
+                      isEnhancing || !content.trim()
+                        ? "text-gray-400"
+                        : "text-brand hover:text-brand"
+                    } relative`}
+                  >
+                    <Sparkles className="h-5 w-5" />
+                    {isEnhancing && (
+                      <span className="absolute -top-1 -right-1">
+                        <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                      </span>
+                    )}
+                  </button>
+                </Tooltip>
 
                 {content.length > 0 && (
                   <div className="flex items-center">
@@ -510,44 +561,6 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                     </span>
                   </div>
                 )}
-
-                <button
-                  onClick={() => setShowGifPicker(!showGifPicker)}
-                  className="p-2 hover:bg-brand/20 rounded-full transition"
-                >
-                  <ImagePlayIcon className="w-5 h-5 text-brand" />
-                </button>
-
-                {/* Add Meme Generator Button */}
-                <button
-                  onClick={() => openMemeModal(handleMemeGenerated)}
-                  className="p-2 hover:bg-brand/20 rounded-full transition"
-                  title="Create a meme"
-                >
-                  <Laugh className="w-5 h-5 text-brand" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log("Enhance button clicked");
-                    enhancePost();
-                  }}
-                  disabled={isEnhancing || !content.trim()}
-                  className={`transition-colors p-2 rounded-full hover:bg-gray-800/50 relative ${
-                    isEnhancing || !content.trim()
-                      ? "text-gray-400"
-                      : "text-brand hover:text-brand"
-                  }`}
-                  title="Enhance your post with AI"
-                >
-                  <Sparkles className="h-5 w-5" />
-                  {isEnhancing && (
-                    <span className="absolute -top-1 -right-1">
-                      <Loader2 className="h-3 w-3 animate-spin text-brand" />
-                    </span>
-                  )}
-                </button>
               </div>
               <button
                 onClick={handlePost}

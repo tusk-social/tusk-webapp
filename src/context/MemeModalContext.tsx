@@ -1,64 +1,18 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
-import Modal from "@/components/ui/Modal";
-import MemeGenerator from "@/components/meme/MemeGenerator";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import MemeModal from "@/components/meme/MemeModal";
+
+type MemeGeneratedCallback = (imageUrl: string) => void;
 
 interface MemeModalContextType {
-  openMemeModal: (onImageGenerated: (imageUrl: string) => void) => void;
+  openMemeModal: (onMemeGenerated: MemeGeneratedCallback) => void;
   closeMemeModal: () => void;
-  isMemeModalOpen: boolean;
 }
 
 const MemeModalContext = createContext<MemeModalContextType | undefined>(
   undefined,
 );
-
-export function MemeModalProvider({ children }: { children: ReactNode }) {
-  const [isMemeModalOpen, setIsMemeModalOpen] = useState(false);
-  const [onImageGeneratedCallback, setOnImageGeneratedCallback] = useState<
-    ((imageUrl: string) => void) | null
-  >(null);
-
-  const openMemeModal = (onImageGenerated: (imageUrl: string) => void) => {
-    setOnImageGeneratedCallback(() => onImageGenerated);
-    setIsMemeModalOpen(true);
-  };
-
-  const closeMemeModal = () => {
-    setIsMemeModalOpen(false);
-  };
-
-  const handleMemeGenerated = (imageUrl: string) => {
-    if (onImageGeneratedCallback) {
-      onImageGeneratedCallback(imageUrl);
-    }
-    closeMemeModal();
-  };
-
-  return (
-    <MemeModalContext.Provider
-      value={{
-        openMemeModal,
-        closeMemeModal,
-        isMemeModalOpen,
-      }}
-    >
-      {children}
-
-      <Modal
-        isOpen={isMemeModalOpen}
-        onClose={closeMemeModal}
-        title="Create a Meme"
-      >
-        <MemeGenerator
-          onMemeGenerated={handleMemeGenerated}
-          onClose={closeMemeModal}
-        />
-      </Modal>
-    </MemeModalContext.Provider>
-  );
-}
 
 export function useMemeModal() {
   const context = useContext(MemeModalContext);
@@ -66,4 +20,42 @@ export function useMemeModal() {
     throw new Error("useMemeModal must be used within a MemeModalProvider");
   }
   return context;
+}
+
+interface MemeModalProviderProps {
+  children: ReactNode;
+}
+
+export function MemeModalProvider({ children }: MemeModalProviderProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [onMemeGeneratedCallback, setOnMemeGeneratedCallback] =
+    useState<MemeGeneratedCallback | null>(null);
+
+  const openMemeModal = (callback: MemeGeneratedCallback) => {
+    setOnMemeGeneratedCallback(() => callback);
+    setIsOpen(true);
+  };
+
+  const closeMemeModal = () => {
+    setIsOpen(false);
+  };
+
+  const handleMemeGenerated = (imageUrl: string) => {
+    if (onMemeGeneratedCallback) {
+      onMemeGeneratedCallback(imageUrl);
+    }
+    closeMemeModal();
+  };
+
+  return (
+    <MemeModalContext.Provider value={{ openMemeModal, closeMemeModal }}>
+      {children}
+      {isOpen && (
+        <MemeModal
+          onMemeGenerated={handleMemeGenerated}
+          onClose={closeMemeModal}
+        />
+      )}
+    </MemeModalContext.Provider>
+  );
 }
