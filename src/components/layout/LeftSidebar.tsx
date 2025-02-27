@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { memo, useMemo } from "react";
+import { usePostModal } from "@/context/PostModalContext";
 
 const menuItems = [
   { icon: Home, label: "Home", href: "/home" },
@@ -64,19 +65,7 @@ NavItem.displayName = "NavItem";
 
 function LeftSidebar() {
   const pathname = usePathname();
-
-  const checkHealthEndpoint = async () => {
-    try {
-      for (let i = 0; i < 1000; i++) {
-        console.log("Calling health API endpoint...");
-        fetch("/api/health").then((res) =>
-          res.json().then((data) => console.log("Health API response:", data)),
-        );
-      }
-    } catch (error) {
-      console.error("Error calling health API:", error);
-    }
-  };
+  const { openPostModal } = usePostModal();
 
   const navItems = useMemo(
     () =>
@@ -106,10 +95,10 @@ function LeftSidebar() {
         {/* Navigation */}
         <nav className="space-y-1 mt-2">{navItems}</nav>
 
-        {/* Post Button - Added onClick handler */}
+        {/* Post Button - Updated to use the PostModalContext */}
         <button
           className="w-[90%] bg-brand hover:bg-brand/90 text-white px-6 py-4 rounded-full font-bold text-lg transition mt-4 relative group"
-          onClick={checkHealthEndpoint}
+          onClick={openPostModal}
         >
           <span className="relative z-10 flex items-center justify-center gap-2">
             <PenSquare className="w-5 h-5" />
