@@ -293,3 +293,76 @@ export const TRENDING_TOPICS = [
     hashtag: "#opensource",
   },
 ];
+
+export const USERS_LIST = [
+  {
+    id: "1",
+    name: "John Doe",
+    username: "johndoe",
+    avatar: "https://api.randomx.ai/avatar/johndoe",
+    bio: "Software engineer by day, dreamer by night 💫",
+  },
+  {
+    id: "2",
+    name: "Jane Smith",
+    username: "janesmith",
+    avatar: "https://api.randomx.ai/avatar/janesmith",
+    bio: "UX/UI Designer | Creating beautiful experiences",
+  },
+  {
+    id: "3",
+    name: "Tech Enthusiast",
+    username: "techlover",
+    avatar: "https://api.randomx.ai/avatar/techlover",
+    bio: "Always exploring the latest in tech",
+  },
+  {
+    id: "4",
+    name: "Design Master",
+    username: "designpro",
+    avatar: "https://api.randomx.ai/avatar/designpro",
+    bio: "Making the world more beautiful, one pixel at a time",
+  },
+  {
+    id: "5",
+    name: "Travel Enthusiast",
+    username: "traveler",
+    avatar: "https://api.randomx.ai/avatar/traveler",
+    bio: "Exploring the world, one country at a time ✈️",
+  },
+  {
+    id: "6",
+    name: "Web Wizard",
+    username: "webwizard",
+    avatar: "https://api.randomx.ai/avatar/webwizard",
+    bio: "Full-stack developer | Open source contributor",
+  },
+  {
+    id: "7",
+    name: "Tech Explorer",
+    username: "techexplorer",
+    avatar: "https://api.randomx.ai/avatar/techexplorer",
+    bio: "Exploring the frontiers of technology",
+  },
+  {
+    id: "8",
+    name: "Product Guru",
+    username: "prodguru",
+    avatar: "https://api.randomx.ai/avatar/prodguru",
+    bio: "Building products people love",
+  },
+  {
+    id: "9",
+    name: "Code Ninja",
+    username: "codeninja",
+    avatar: "https://api.randomx.ai/avatar/codeninja",
+    bio: "Slicing through complex problems with elegant code",
+  },
+  {
+    id: "10",
+    name: "AI Researcher",
+    username: "airesearcher",
+    avatar: "https://api.randomx.ai/avatar/airesearcher",
+    bio: "Pushing the boundaries of artificial intelligence",
+  },
+];
