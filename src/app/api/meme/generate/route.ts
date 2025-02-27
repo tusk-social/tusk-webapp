@@ -29,9 +29,9 @@ export async function POST(request: NextRequest) {
     formData.append("username", username);
     formData.append("password", password);
 
-    // Add captions to form data
-    captions.forEach((caption: string, index: number) => {
-      formData.append(`text${index}`, caption);
+    // Add each box as a separate parameter
+    captions.forEach((caption, index) => {
+      formData.append(`boxes[${index}][text]`, caption);
     });
 
     // Make API request to Imgflip (using FormData as imgflip requires)
