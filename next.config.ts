@@ -2,31 +2,40 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['api.randomx.ai', 'assets.newatlas.com', 'newatlas-brightspot.s3.amazonaws.com'],
+    domains: [
+      "api.randomx.ai",
+      "assets.newatlas.com",
+      "newatlas-brightspot.s3.amazonaws.com",
+    ],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'api.randomx.ai',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "api.randomx.ai",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'assets.newatlas.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "assets.newatlas.com",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'newatlas-brightspot.s3.amazonaws.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "newatlas-brightspot.s3.amazonaws.com",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'media.tenor.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "media.tenor.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.imgflip.com",
+        pathname: "/**",
       },
     ],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
+    contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };

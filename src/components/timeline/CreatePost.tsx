@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { ImageIcon, SmileIcon, ImagePlayIcon } from "lucide-react";
+import { ImageIcon, SmileIcon, ImagePlayIcon, Laugh } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { USERS_LIST } from "@/services/mockData";
+import { useMemeModal } from "@/context/MemeModalContext";
 
 const MAX_CHARS = 280;
 
@@ -60,6 +61,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
   const [selectedGif, setSelectedGif] = useState<string | null>(null);
   const gifSearchInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { openMemeModal } = useMemeModal();
 
   // Mentions state
   const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
@@ -228,7 +230,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
   };
 
   const handlePost = () => {
-    if (!content.trim() && !selectedGif) return;
+    if (!content.trim() && !selectedGif && !image) return;
 
     const newPost: Post = {
       id: Math.random().toString(36).substring(7),
@@ -371,6 +373,12 @@ export default function CreatePost({ onPost }: CreatePostProps) {
     setShowMentionSuggestions(false);
   };
 
+  const handleMemeGenerated = (memeUrl: string) => {
+    // Clear any existing image or GIF
+    setImage(memeUrl);
+    setSelectedGif(null);
+  };
+
   return (
     <div className="border-b border-gray-800 py-4 px-4 relative">
       {/* Glow Effect */}
@@ -476,11 +484,20 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                 >
                   <ImagePlayIcon className="w-5 h-5 text-brand" />
                 </button>
+
+                {/* Add Meme Generator Button */}
+                <button
+                  onClick={() => openMemeModal(handleMemeGenerated)}
+                  className="p-2 hover:bg-brand/20 rounded-full transition"
+                  title="Create a meme"
+                >
+                  <Laugh className="w-5 h-5 text-brand" />
+                </button>
               </div>
               <button
                 onClick={handlePost}
                 disabled={
-                  (!content.trim() && !selectedGif) ||
+                  (!content.trim() && !selectedGif && !image) ||
                   content.length > MAX_CHARS
                 }
                 className="bg-brand px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand/90 transition"

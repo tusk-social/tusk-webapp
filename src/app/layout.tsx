@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { PostModalProvider } from "@/context/PostModalContext";
+import { MemeModalProvider } from "@/context/MemeModalContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,17 +25,19 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
         <PostModalProvider>
-          {children}
-          <Toaster
-            position="bottom-center"
-            toastOptions={{
-              style: {
-                background: "#1f2937",
-                color: "#fff",
-                borderRadius: "9999px",
-              },
-            }}
-          />
+          <MemeModalProvider>
+            {children}
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                style: {
+                  background: "#1f2937",
+                  color: "#fff",
+                  borderRadius: "9999px",
+                },
+              }}
+            />
+          </MemeModalProvider>
         </PostModalProvider>
       </body>
     </html>
