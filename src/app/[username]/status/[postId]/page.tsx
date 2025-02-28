@@ -5,15 +5,16 @@ import { notFound } from "next/navigation";
 import { postService } from "@/services/postService";
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     username: string;
     postId: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
   try {
-    const post = await postService.getPostById(params.postId);
+    const { postId } = await params;
+    const post = await postService.getPostById(postId);
     if (!post) return { title: "Post not found | Tusk" };
 
     const userName = post.user?.displayName || "Unknown User";
@@ -28,15 +29,16 @@ export async function generateMetadata({ params }: PostPageProps) {
 }
 
 export default async function PostPage({ params }: PostPageProps) {
+  const { postId, username } = await params;
   try {
-    const post = await postService.getPostById(params.postId);
+    const post = await postService.getPostById(postId);
 
     if (!post) {
       notFound();
     }
 
     const postUsername = post.user?.username;
-    if (postUsername && postUsername !== params.username) {
+    if (postUsername && postUsername !== username) {
       notFound();
     }
 
