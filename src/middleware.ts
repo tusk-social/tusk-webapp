@@ -1,7 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { middleware as chopinMiddleware } from "@chopinframework/next";
 
-const publicPaths = ["/", "/_chopin/login", "/_chopin/auth-callback"];
+const publicPaths = [
+  "/",
+  "/_chopin/login",
+  "/_chopin/auth-callback",
+  "/auth/onboarding",
+];
+
+// List of reserved paths that should not be treated as usernames
+const RESERVED_PATHS = [
+  "home",
+  "settings",
+  "notifications",
+  "messages",
+  "explore",
+  "search",
+  "profile",
+  "auth",
+  "api",
+  "_chopin",
+  "tmp",
+  "debug",
+];
 
 function decodeJwt(token: string) {
   try {
@@ -90,7 +111,20 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  console.log("Token is valid. User ID:", decodedToken.properties?.id);
+  console.log(
+    "Token is valid. User Wallet Address:",
+    decodedToken.properties?.id,
+  );
+
+  const url = request.nextUrl.clone();
+  const path = url.pathname.split("/")[1]; // Get the first segment after /
+
+  // If the path is in the reserved list, don't do anything
+  if (RESERVED_PATHS.includes(path)) {
+    return NextResponse.next();
+  }
+
+  // Otherwise, let it go through to the [username] route
   return NextResponse.next();
 }
 

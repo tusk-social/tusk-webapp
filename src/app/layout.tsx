@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { PostModalProvider } from "@/context/PostModalContext";
 import { MemeModalProvider } from "@/context/MemeModalContext";
 import Providers from "@/components/providers/Providers";
+import { UserProvider } from "@/contexts/UserContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,23 +26,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Providers>
-          <PostModalProvider>
-            <MemeModalProvider>
-              {children}
-              <Toaster
-                position="bottom-center"
-                toastOptions={{
-                  style: {
-                    background: "#1f2937",
-                    color: "#fff",
-                    borderRadius: "9999px",
-                  },
-                }}
-              />
-            </MemeModalProvider>
-          </PostModalProvider>
-        </Providers>
+        <UserProvider>
+          <Providers>
+            <PostModalProvider>
+              <MemeModalProvider>
+                {children}
+                <Toaster
+                  position="bottom-center"
+                  toastOptions={{
+                    style: {
+                      background: "#1f2937",
+                      color: "#fff",
+                      borderRadius: "9999px",
+                    },
+                  }}
+                />
+              </MemeModalProvider>
+            </PostModalProvider>
+          </Providers>
+        </UserProvider>
       </body>
     </html>
   );

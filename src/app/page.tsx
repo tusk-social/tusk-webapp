@@ -1,15 +1,16 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import LandingPage from "@/components/LandingPage";
+import AuthRedirect from "@/components/auth/AuthRedirect";
 
 // This is a Server Component
 export default async function Home() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token");
 
-  if (accessToken?.value) {
-    redirect("/home");
+  // If no token, show landing page
+  if (!accessToken?.value) {
+    return <LandingPage />;
   }
 
-  return <LandingPage />;
+  return <AuthRedirect />;
 }

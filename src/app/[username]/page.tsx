@@ -1,34 +1,50 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Calendar, Link as LinkIcon, MapPin } from "lucide-react";
 import Link from "next/link";
 import PostList from "@/components/timeline/PostList";
 import AppLayout from "@/components/layout/AppLayout";
-import { MOCK_USER } from "@/services/mockData";
+import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/server-auth";
 
-// This will be replaced with actual data fetching
-// const MOCK_USER = {
-//   name: "John Doe",
-//   username: "johndoe",
-//   avatar: "https://api.randomx.ai/avatar/johndoe",
-//   banner: "/banners/default.jpg",
-//   bio: "Software engineer by day, dreamer by night 💫\nBuilding the future, one line of code at a time.",
-//   location: "San Francisco, CA",
-//   website: "https://johndoe.dev",
-//   joinedDate: "March 2024",
-//   following: 420,
-//   followers: 69,
-// };
+export default async function UserProfilePage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const username = (await params).username;
+  console.log("Username param:", username);
 
-//export default async function ProfilePage({ params }: { params: { username: string } }) {
-export default async function ProfilePage() {
-  //const username = params.username;
-  
-  const user = MOCK_USER;
-  
+  let user;
+
+  // Check if this is the "profile" route (current user's profile)
+  if (username === "profile") {
+    user = await getCurrentUser();
+
+    if (!user) {
+      redirect("/");
+    }
+  } else {
+    // Find the user by username
+    try {
+      console.log("Looking up user with username:", username);
+      user = await prisma.user.findUnique({
+        where: { username },
+      });
+      console.log("User found:", user ? "Yes" : "No");
+    } catch (error) {
+      console.error("Error finding user:", error);
+      throw error;
+    }
+  }
+
   if (!user) {
+    console.log("User not found, showing 404");
     notFound();
   }
+
+  // Format the joined date
+  const joinedDate = formatDate(user.createdAt);
 
   return (
     <AppLayout>
@@ -36,14 +52,14 @@ export default async function ProfilePage() {
         {/* Header */}
         <div className="sticky top-0 z-20 backdrop-blur-md bg-black/70 border-b border-gray-800">
           <div className="flex items-center gap-6 px-4 py-2">
-            <Link 
+            <Link
               href="/home"
               className="p-2 hover:bg-white/10 rounded-full transition"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold">{user.name}</h1>
+              <h1 className="text-xl font-bold">{user.displayName}</h1>
               <p className="text-sm text-gray-500">1,234 posts</p>
             </div>
           </div>
@@ -51,9 +67,9 @@ export default async function ProfilePage() {
 
         {/* Banner */}
         <div className="h-48 bg-gray-800 relative">
-          {user.banner && (
+          {user.profileBannerUrl && (
             <Image
-              src={user.banner}
+              src={user.profileBannerUrl}
               alt="Profile banner"
               fill
               className="object-cover"
@@ -65,13 +81,17 @@ export default async function ProfilePage() {
         <div className="px-4 pb-4 relative">
           {/* Avatar */}
           <div className="absolute -top-16 left-4 w-32 h-32 rounded-full border-4 border-black bg-gray-800 overflow-hidden">
-            {user.avatar && (
+            {user.avatarUrl ? (
               <Image
-                src={user.avatar}
-                alt={user.name}
+                src={user.avatarUrl}
+                alt={user.displayName}
                 fill
                 className="object-cover"
               />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-700 text-4xl font-bold">
+                {user.displayName.charAt(0).toUpperCase()}
+              </div>
             )}
           </div>
 
@@ -84,10 +104,10 @@ export default async function ProfilePage() {
 
           {/* User Info */}
           <div className="mt-4">
-            <h2 className="text-xl font-bold">{user.name}</h2>
+            <h2 className="text-xl font-bold">{user.displayName}</h2>
             <p className="text-gray-500">@{user.username}</p>
 
-            <p className="mt-4 whitespace-pre-wrap">{user.bio}</p>
+            {user.bio && <p className="mt-4 whitespace-pre-wrap">{user.bio}</p>}
 
             <div className="flex flex-wrap gap-4 mt-4 text-gray-500">
               {user.location && (
@@ -96,30 +116,30 @@ export default async function ProfilePage() {
                   <span>{user.location}</span>
                 </div>
               )}
-              {user.website && (
-                <a 
-                  href={user.website}
+              {user.websiteUrl && (
+                <a
+                  href={user.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-brand hover:underline"
                 >
                   <LinkIcon className="w-4 h-4" />
-                  <span>{new URL(user.website).hostname}</span>
+                  <span>{new URL(user.websiteUrl).hostname}</span>
                 </a>
               )}
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                <span>Joined {user.joinedDate}</span>
+                <span>Joined {joinedDate}</span>
               </div>
             </div>
 
             <div className="flex gap-4 mt-4">
               <button className="hover:underline">
-                <span className="font-bold">{user.following}</span>{" "}
+                <span className="font-bold">{user.followingCount}</span>{" "}
                 <span className="text-gray-500">Following</span>
               </button>
               <button className="hover:underline">
-                <span className="font-bold">{user.followers}</span>{" "}
+                <span className="font-bold">{user.followersCount}</span>{" "}
                 <span className="text-gray-500">Followers</span>
               </button>
             </div>
@@ -149,4 +169,24 @@ export default async function ProfilePage() {
       </main>
     </AppLayout>
   );
-} 
+}
+
+function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+}
