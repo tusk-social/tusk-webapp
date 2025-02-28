@@ -4,7 +4,7 @@ import { postService } from "@/services/postService";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
     const user = await getCurrentUser();
@@ -13,28 +13,31 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
     const { text } = await request.json();
 
     // Validate text length if provided
     if (text && text.length > 280) {
       return NextResponse.json(
         { error: "Text cannot exceed 280 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if the original post exists
     const originalPost = await postService.getPostById(postId);
     if (!originalPost) {
-      return NextResponse.json({ error: "Original post not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Original post not found" },
+        { status: 404 },
+      );
     }
 
     // Check if user is trying to repost their own post
     if (originalPost.user.id === user.id) {
       return NextResponse.json(
         { error: "You cannot repost your own post" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,7 +53,7 @@ export async function POST(
     console.error("Error creating repost:", error);
     return NextResponse.json(
       { error: "Failed to create repost" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

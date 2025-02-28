@@ -11,10 +11,10 @@ const paginationSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { postId: string } },
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
     const { searchParams } = new URL(request.url);
 
     // Validate pagination parameters
@@ -60,7 +60,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { postId: string } },
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
     const user = await getCurrentUser();
@@ -69,7 +69,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
     const { text, media } = await request.json();
 
     // Validate request body

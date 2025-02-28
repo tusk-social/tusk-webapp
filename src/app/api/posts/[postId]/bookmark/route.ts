@@ -4,7 +4,7 @@ import { postService } from "@/services/postService";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
     const user = await getCurrentUser();
@@ -13,7 +13,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
 
     // Check if the post exists
     const post = await postService.getPostById(postId);
@@ -31,14 +31,14 @@ export async function POST(
     console.error("Error bookmarking post:", error);
     return NextResponse.json(
       { error: "Failed to bookmark post" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
     const user = await getCurrentUser();
@@ -47,7 +47,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
 
     // Check if the post exists
     const post = await postService.getPostById(postId);
@@ -65,7 +65,7 @@ export async function DELETE(
     console.error("Error removing bookmark:", error);
     return NextResponse.json(
       { error: "Failed to remove bookmark" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

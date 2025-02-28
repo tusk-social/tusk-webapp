@@ -8,10 +8,7 @@ interface Params {
   }>;
 }
 
-export async function POST(
-  request: NextRequest,
-  props: Params
-) {
+export async function POST(request: NextRequest, props: Params) {
   try {
     const user = await getCurrentUser();
 
@@ -36,16 +33,13 @@ export async function POST(
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error("Error liking post:", error);
-    return NextResponse.json(
-      { error: "Failed to like post" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to like post" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
     const user = await getCurrentUser();
@@ -54,7 +48,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
 
     // Check if the post exists
     const post = await postService.getPostById(postId);
@@ -72,7 +66,7 @@ export async function DELETE(
     console.error("Error unliking post:", error);
     return NextResponse.json(
       { error: "Failed to unlike post" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

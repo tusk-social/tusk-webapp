@@ -4,14 +4,14 @@ import { postService } from "@/services/postService";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
     const user = await getCurrentUser();
 
     const post = await postService.getPostById(postId);
-    
+
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
@@ -23,7 +23,7 @@ export async function GET(
     console.error("Error fetching post:", error);
     return NextResponse.json(
       { error: "Failed to fetch post" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}
