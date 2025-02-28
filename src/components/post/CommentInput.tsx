@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { ImageIcon, SmileIcon } from "lucide-react";
@@ -20,7 +20,10 @@ interface CommentInputProps {
   isSubmitting: boolean;
 }
 
-export default function CommentInput({ onSubmit, isSubmitting }: CommentInputProps) {
+export default function CommentInput({
+  onSubmit,
+  isSubmitting,
+}: CommentInputProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -87,6 +90,18 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB");
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith("image/")) {
+        alert("Only image files are allowed");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => setImage(e.target?.result as string);
       reader.readAsDataURL(file);
@@ -118,6 +133,7 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
           className="w-full bg-transparent border-b border-gray-800 focus:border-brand resize-none outline-none min-h-[80px] placeholder-gray-600"
           maxLength={MAX_CHARS}
           maxRows={8}
+          disabled={isSubmitting}
         />
 
         {image && (
@@ -133,6 +149,7 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
             <button
               onClick={() => setImage(null)}
               className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 transition"
+              disabled={isSubmitting}
             >
               ×
             </button>
@@ -145,6 +162,7 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
               onClick={() => fileInputRef.current?.click()}
               className="text-brand hover:text-brand/90 transition p-2"
               aria-label="Upload image"
+              disabled={isSubmitting}
             >
               <ImageIcon size={20} className="align-middle" />
             </button>
@@ -154,6 +172,7 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
               ref={fileInputRef}
               accept="image/*"
               onChange={handleImageUpload}
+              disabled={isSubmitting}
             />
 
             <div className="relative">
@@ -162,6 +181,7 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="text-brand hover:text-brand/90 transition p-2"
                 aria-label="Add emoji"
+                disabled={isSubmitting}
               >
                 <SmileIcon size={20} className="align-middle" />
               </button>
@@ -223,4 +243,4 @@ export default function CommentInput({ onSubmit, isSubmitting }: CommentInputPro
       </div>
     </div>
   );
-} 
+}

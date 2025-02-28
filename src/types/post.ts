@@ -2,7 +2,7 @@ export type PostType = "text" | "image" | "thread";
 
 export interface Post {
   id: string;
-  type: PostType;
+  type?: PostType;
   content?: string;
   text?: string; // Alternative field name from database
   author?: {
@@ -18,7 +18,7 @@ export interface Post {
     avatar?: string;
     id?: string;
   };
-  createdAt: string;
+  createdAt: Date;
   stats?: {
     replies: number;
     reposts: number;

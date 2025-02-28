@@ -66,15 +66,7 @@ export default function PostCard({ post }: PostCardProps) {
   // Check if post has the expected structure for user/author
   const hasValidUser =
     post.user && typeof post.user === "object" && "username" in post.user;
-  const hasValidAuthor =
-    post.author && typeof post.author === "object" && "username" in post.author;
-
-  // Use user if available, fall back to author, then to defaults
-  const userObj = hasValidUser
-    ? post.user
-    : hasValidAuthor
-      ? post.author
-      : null;
+  const userObj = hasValidUser ? post.user : null;
   const userName = userObj
     ? userObj.displayName || userObj.name || "Unknown User"
     : "Unknown User";
@@ -327,16 +319,10 @@ export default function PostCard({ post }: PostCardProps) {
                     threadPost.user &&
                     typeof threadPost.user === "object" &&
                     "username" in threadPost.user;
-                  const hasValidThreadAuthor =
-                    threadPost.author &&
-                    typeof threadPost.author === "object" &&
-                    "username" in threadPost.author;
 
                   const threadUserObj = hasValidThreadUser
                     ? threadPost.user
-                    : hasValidThreadAuthor
-                      ? threadPost.author
-                      : null;
+                    : null;
                   const threadUserName = threadUserObj
                     ? threadUserObj.displayName ||
                       threadUserObj.name ||

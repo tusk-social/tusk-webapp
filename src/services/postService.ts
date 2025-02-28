@@ -358,7 +358,7 @@ export const postService = {
     total: number;
   }> {
     const skip = (page - 1) * limit;
-    
+
     // Get user by username
     const user = await prisma.user.findUnique({
       where: { username },
@@ -555,7 +555,7 @@ export const postService = {
     if (!data.parentPostId) {
       throw new Error("Parent post ID is required for a reply");
     }
-    
+
     return this.createPost(data);
   },
 
@@ -564,7 +564,7 @@ export const postService = {
     if (!data.repostPostId) {
       throw new Error("Original post ID is required for a repost");
     }
-    
+
     return this.createPost(data);
   },
 
@@ -580,13 +580,13 @@ export const postService = {
   async getPostsByHashtag(
     hashtag: string,
     page = 1,
-    limit = 20
+    limit = 20,
   ): Promise<{
     posts: PostWithRelations[];
     total: number;
   }> {
     const skip = (page - 1) * limit;
-    
+
     const where: Prisma.PostWhereInput = {
       deletedAt: null,
       postHashtags: {
@@ -639,4 +639,63 @@ export const postService = {
 
     return { posts, total };
   },
-}; 
+
+  async getPostReplies(
+    postId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PostWithRelations[]> {
+    const skip = (page - 1) * limit;
+
+    const replies = await prisma.post.findMany({
+      where: {
+        parentPostId: postId,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: {
+        user: true,
+        parentPost: {
+          include: {
+            user: true,
+          },
+        },
+        repostPost: {
+          include: {
+            user: true,
+          },
+        },
+        likes: {
+          include: {
+            user: true,
+          },
+        },
+        bookmarks: true,
+        mentions: {
+          include: {
+            mentionedUser: true,
+          },
+        },
+        postHashtags: {
+          include: {
+            hashtag: true,
+          },
+        },
+      },
+    });
+
+    return replies;
+  },
+
+  // Count replies for a specific post
+  async getPostRepliesCount(postId: string): Promise<number> {
+    return prisma.post.count({
+      where: {
+        parentPostId: postId,
+        deletedAt: null,
+      },
+    });
+  },
+};
