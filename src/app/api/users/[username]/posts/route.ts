@@ -4,14 +4,17 @@ import { postService } from "@/services/postService";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> },
 ) {
   try {
-    const { username } = params;
+    const { username } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
-    const type = (searchParams.get("type") || "all") as "all" | "replies" | "media";
+    const type = (searchParams.get("type") || "all") as
+      | "all"
+      | "replies"
+      | "media";
 
     const { posts, total } = await postService.getUserPosts({
       username,
@@ -33,7 +36,7 @@ export async function GET(
     console.error("Error fetching user posts:", error);
     return NextResponse.json(
       { error: "Failed to fetch user posts" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}
