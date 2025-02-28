@@ -300,7 +300,7 @@ export default function PostDetail({ post }: PostDetailProps) {
 
         {/* Post Meta */}
         <div className="px-4 py-3 border-y border-gray-800 mt-4 text-gray-500">
-          <time>{formatDate(post.createdAt.toISOString())}</time>
+          <time>{formatDate(post.createdAt.toString())}</time>
           <div className="flex gap-4 mt-2">
             <div>
               <span className="font-bold text-white">

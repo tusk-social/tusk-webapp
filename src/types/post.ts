@@ -18,7 +18,7 @@ export interface Post {
     avatar?: string;
     id?: string;
   };
-  createdAt: Date;
+  createdAt: Date | string;
   stats?: {
     replies: number;
     reposts: number;
