@@ -44,11 +44,9 @@ export async function GET(request: NextRequest, props: Params) {
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: NextRequest, props: Params) {
   try {
+    const params = await props.params;
     const userId = params.id;
 
     // Check if the current user is authorized to update this profile

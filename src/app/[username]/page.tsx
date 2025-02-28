@@ -9,12 +9,14 @@ import { getCurrentUser } from "@/lib/server-auth";
 import EditProfileButton from "@/components/profile/EditProfileButton";
 import FollowButton from "@/components/profile/FollowButton";
 
-export default async function UserProfilePage({
-  params,
-}: {
-  params: { username: string };
-}) {
-  const username = params.username;
+interface PageProps {
+  params: Promise<{
+    username: string;
+  }>;
+}
+
+export default async function UserProfilePage({ params }: PageProps) {
+  const username = (await params).username;
 
   const user = await prisma.user.findUnique({
     where: { username },
