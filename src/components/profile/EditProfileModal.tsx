@@ -213,7 +213,7 @@ export default function EditProfileModal({
         formData.append("banner", bannerFile);
       }
 
-      const response = await fetch(`/api/users/${user.id}`, {
+      const response = await fetch(`/api/users/`, {
         method: "PATCH",
         body: formData,
       });

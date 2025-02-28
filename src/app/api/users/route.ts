@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userService, CreateUserData } from "@/services/userService";
 import { prisma } from "@/lib/db";
+import { cookies } from "next/headers";
+import { decodeJwt } from "@/lib/jwt";
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,6 +115,89 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    // Verify authentication
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token");
+
+    if (!accessToken?.value) {
+      return NextResponse.json(
+        { error: "Unauthorized - No token provided" },
+        { status: 401 },
+      );
+    }
+
+    // Decode the token to get the wallet address
+    const decodedToken = decodeJwt(accessToken.value);
+    const walletAddress = decodedToken?.properties?.id;
+
+    if (!walletAddress) {
+      return NextResponse.json(
+        { error: "Unauthorized - Invalid token" },
+        { status: 401 },
+      );
+    }
+
+    // Find the authenticated user
+    const authenticatedUser = await prisma.user.findUnique({
+      where: { walletAddress },
+    });
+
+    if (!authenticatedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Process the form data
+    const formData = await request.formData();
+
+    // Extract profile data from form
+    const displayName = formData.get("displayName") as string;
+    const bio = formData.get("bio") as string;
+    const location = formData.get("location") as string;
+    const websiteUrl = formData.get("websiteUrl") as string;
+
+    // Get file uploads if present
+    const avatarFile = formData.get("avatar") as File | null;
+    const bannerFile = formData.get("banner") as File | null;
+
+    // Prepare update data
+    const updateData: any = {
+      displayName,
+      bio: bio || null,
+      location: location || null,
+      websiteUrl: websiteUrl || null,
+    };
+
+    // Handle avatar upload if provided
+    if (avatarFile) {
+      console.log("Avatar file received:", avatarFile.name, avatarFile.size);
+      updateData.avatarUrl = `/uploads/avatars/${authenticatedUser.id}-${Date.now()}.jpg`;
+    }
+
+    // Handle banner upload if provided
+    if (bannerFile) {
+      // Similar placeholder for banner upload
+      console.log("Banner file received:", bannerFile.name, bannerFile.size);
+      updateData.profileBannerUrl = `/uploads/banners/${authenticatedUser.id}-${Date.now()}.jpg`;
+    }
+
+    // Update the user in the database
+    const updatedUser = await prisma.user.update({
+      where: { id: authenticatedUser.id },
+      data: updateData,
+    });
+
+    return NextResponse.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    return NextResponse.json(
+      { error: "Failed to update profile" },
       { status: 500 },
     );
   }
