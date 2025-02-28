@@ -105,12 +105,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   // Function to handle logout
-  const logout = () => {
-    // Clear the access_token cookie
-    document.cookie =
-      "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setUser(null);
-    router.push("/");
+  const logout = async () => {
+    try {
+      // Call the logout API endpoint
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      // Clear the user state
+      setUser(null);
+
+      // Redirect to the landing page
+      router.push("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // You could show a toast notification here
+    }
   };
 
   // Fetch user data on mount
