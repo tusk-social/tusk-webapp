@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import SplitLayout from "@/components/layout/SplitLayout";
+import toast from "react-hot-toast";
+import { AlertCircle } from "lucide-react";
 
 export default function OnboardingForm() {
   const router = useRouter();
@@ -10,7 +12,10 @@ export default function OnboardingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    displayName: "",
+    username: "",
+  });
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Get the wallet address from the API
@@ -27,28 +32,54 @@ export default function OnboardingForm() {
         }
       } catch (err) {
         console.error("Error getting wallet address:", err);
-        setError("Failed to get wallet address. Please try again.");
+        toast.error("Failed to get wallet address. Please try again.");
       }
     };
 
     getWalletAddress();
   }, [router]);
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      displayName: "",
+      username: "",
+    };
+
+    if (!displayName.trim()) {
+      newErrors.displayName = "Display name is required";
+      valid = false;
+    }
+
+    if (!username.trim()) {
+      newErrors.username = "Username is required";
+      valid = false;
+    } else if (username.length < 6) {
+      newErrors.username = "Username must be at least 6 characters long";
+      valid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      newErrors.username =
+        "Username can only contain letters, numbers, and underscores";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!displayName || !username) {
-      setError("Display name and username are required");
+    if (!validateForm()) {
       return;
     }
 
     if (!walletAddress) {
-      setError("Wallet address not found. Please try logging in again.");
+      toast.error("Wallet address not found. Please try logging in again.");
       return;
     }
 
     setIsLoading(true);
-    setError("");
 
     try {
       const response = await fetch("/api/users", {
@@ -72,10 +103,13 @@ export default function OnboardingForm() {
       // User created successfully, update the user context
       await refetchUser();
 
+      // Show success toast
+      toast.success("Profile created successfully!");
+
       // Navigate to home
       router.push("/home");
     } catch (err: any) {
-      setError(err.message || "An error occurred during onboarding");
+      toast.error(err.message || "An error occurred during onboarding");
     } finally {
       setIsLoading(false);
     }
@@ -97,9 +131,20 @@ export default function OnboardingForm() {
       </div>
 
       <div className="space-y-6">
-        {error && (
+        {errors.displayName && (
           <div className="bg-red-900/50 border border-red-500 text-red-200 p-3 rounded-xl">
-            {error}
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <p>{errors.displayName}</p>
+            </div>
+          </div>
+        )}
+        {errors.username && (
+          <div className="bg-red-900/50 border border-red-500 text-red-200 p-3 rounded-xl">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <p>{errors.username}</p>
+            </div>
           </div>
         )}
 
@@ -118,10 +163,12 @@ export default function OnboardingForm() {
                 name="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-4 bg-black/50 backdrop-blur-sm border border-purple-800/50 rounded-xl 
+                className={`w-full px-4 py-4 bg-black/50 backdrop-blur-sm border ${
+                  errors.displayName ? "border-red-500" : "border-purple-800/50"
+                } rounded-xl 
                 focus:ring-0 focus:border-brand focus:bg-black/70
                 hover:border-purple-600/70 hover:bg-black/70
-                text-white placeholder-gray-500 transition-all duration-200 outline-none"
+                text-white placeholder-gray-500 transition-all duration-200 outline-none`}
                 placeholder="Your name"
                 required
               />
@@ -144,10 +191,12 @@ export default function OnboardingForm() {
                   name="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-8 pr-4 py-4 bg-black/50 backdrop-blur-sm border border-purple-800/50 rounded-xl
+                  className={`w-full pl-8 pr-4 py-4 bg-black/50 backdrop-blur-sm border ${
+                    errors.username ? "border-red-500" : "border-purple-800/50"
+                  } rounded-xl
                   focus:ring-0 focus:border-brand focus:bg-black/70
                   hover:border-purple-600/70 hover:bg-black/70
-                  text-white placeholder-gray-500 transition-all duration-200 outline-none"
+                  text-white placeholder-gray-500 transition-all duration-200 outline-none`}
                   placeholder="username"
                   required
                 />
@@ -164,7 +213,7 @@ export default function OnboardingForm() {
             flex items-center justify-center"
           >
             {isLoading ? (
-              <>
+              <div className="flex items-center justify-center gap-2">
                 <svg
                   className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                   xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +235,7 @@ export default function OnboardingForm() {
                   ></path>
                 </svg>
                 Setting up...
-              </>
+              </div>
             ) : (
               "Continue"
             )}

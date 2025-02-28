@@ -1,20 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userService, CreateUserData } from "@/services/userService";
+import { prisma } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const { displayName, username, walletAddress } = await request.json();
 
     // Validate required fields
-    if (!body.displayName || !body.username) {
+    if (!displayName || !username || !walletAddress) {
       return NextResponse.json(
-        { error: "Display name and username are required" },
+        { error: "Display name, username, and wallet address are required" },
+        { status: 400 },
+      );
+    }
+
+    // Validate username length
+    if (username.length < 6) {
+      return NextResponse.json(
+        { error: "Username must be at least 6 characters long" },
+        { status: 400 },
+      );
+    }
+
+    // Validate username format
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return NextResponse.json(
+        {
+          error: "Username can only contain letters, numbers, and underscores",
+        },
         { status: 400 },
       );
     }
 
     // Check if username is already taken
-    const existingUser = await userService.getUserByUsername(body.username);
+    const existingUser = await prisma.user.findUnique({
+      where: { username },
+    });
+
     if (existingUser) {
       return NextResponse.json(
         { error: "Username is already taken" },
@@ -22,26 +44,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if wallet address is already registered
+    const existingWallet = await prisma.user.findUnique({
+      where: { walletAddress },
+    });
+
+    if (existingWallet) {
+      return NextResponse.json(
+        { error: "Wallet address is already registered" },
+        { status: 409 },
+      );
+    }
+
     // Create user data object
     const userData: CreateUserData = {
-      displayName: body.displayName,
-      username: body.username,
-      walletAddress: body.walletAddress,
-      avatarUrl: body.avatarUrl,
-      profileBannerUrl: body.profileBannerUrl,
-      bio: body.bio,
-      location: body.location,
-      websiteUrl: body.websiteUrl,
+      displayName,
+      username,
+      walletAddress,
+      avatarUrl: "",
+      profileBannerUrl: "",
+      bio: "",
+      location: "",
+      websiteUrl: "",
     };
 
     // Create the user
     const user = await userService.createUser(userData);
 
     return NextResponse.json(user, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error);
     return NextResponse.json(
-      { error: "Failed to create user" },
+      { error: "Failed to create user", details: error.message },
       { status: 500 },
     );
   }
