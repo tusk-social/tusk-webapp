@@ -11,7 +11,9 @@ interface PostCardProps {
   post: Post;
 }
 
-function parseContent(content: string) {
+function parseContent(content: string | undefined | null) {
+  if (!content) return '';
+  
   return content.split(/(\s+)/).map((part, index) => {
     if (part.startsWith('#')) {
       const tag = part.slice(1);
@@ -45,26 +47,105 @@ function parseContent(content: string) {
 
 export default function PostCard({ post }: PostCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.stats?.likes || post.likeCount || 0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const router = useRouter();
 
-  const handleBookmark = () => {
-    // TODO: Add API call to toggle bookmark
-    setIsBookmarked(!isBookmarked);
+  // Check if post has the expected structure for user/author
+  const hasValidUser = post.user && typeof post.user === 'object' && 'username' in post.user;
+  const hasValidAuthor = post.author && typeof post.author === 'object' && 'username' in post.author;
+  
+  // Use user if available, fall back to author, then to defaults
+  const userObj = hasValidUser ? post.user : (hasValidAuthor ? post.author : null);
+  const userName = userObj ? userObj.name : 'Unknown User';
+  const userUsername = userObj ? userObj.username : 'unknown';
+  const userAvatar = userObj && userObj.avatar ? userObj.avatar : 'https://api.randomx.ai/avatar/unknown';
+
+  // Handle content vs text field
+  const postContent = post.content || post.text || '';
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isBookmarkLoading) return;
+    
+    try {
+      setIsBookmarkLoading(true);
+      
+      const endpoint = `/api/posts/${post.id}/bookmark`;
+      const method = isBookmarked ? 'DELETE' : 'POST';
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to ${isBookmarked ? 'remove bookmark' : 'bookmark'} post`);
+      }
+      
+      // Update local state
+      setIsBookmarked(!isBookmarked);
+      
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      // You could add toast notification here
+    } finally {
+      setIsBookmarkLoading(false);
+    }
   };
 
   const handleShare = () => {
     // TODO: Add share functionality
     if (navigator.share) {
       navigator.share({
-        title: `${post.author.name}'s post on Tusk`,
-        text: post.content,
-        url: `${window.location.origin}/${post.author.username}/status/${post.id}`,
+        title: `${userName}'s post on Tusk`,
+        text: postContent,
+        url: `${window.location.origin}/${userUsername}/status/${post.id}`,
       }).catch(console.error);
     }
   };
 
   const handlePostClick = () => {
-    router.push(`/${post.author.username}/status/${post.id}`);
+    router.push(`/${userUsername}/status/${post.id}`);
+  };
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isLikeLoading) return;
+    
+    try {
+      setIsLikeLoading(true);
+      
+      const endpoint = `/api/posts/${post.id}/like`;
+      const method = isLiked ? 'DELETE' : 'POST';
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to ${isLiked ? 'unlike' : 'like'} post`);
+      }
+      
+      // Update local state
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      // You could add toast notification here
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
 
   return (
@@ -81,14 +162,14 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex space-x-4 pt-4">
           <div className="flex-shrink-0 flex flex-col">
             <Link
-              href={`/${post.author.username}`}
+              href={`/${userUsername}`}
               onClick={(e) => e.stopPropagation()}
               className="w-12 h-12 rounded-full bg-gray-800 relative overflow-hidden"
             >
-              {post.author.avatar && (
+              {userAvatar && (
                 <Image
-                  src={post.author.avatar}
-                  alt={post.author.name}
+                  src={userAvatar}
+                  alt={userName}
                   fill
                   className="object-cover"
                 />
@@ -102,25 +183,25 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex-1">
             <div className="flex items-center space-x-2">
               <Link 
-                href={`/${post.author.username}`} 
+                href={`/${userUsername}`} 
                 className="font-bold hover:underline"
                 onClick={(e) => e.stopPropagation()}
               >
-                {post.author.name}
+                {userName}
               </Link>
               <Link 
-                href={`/${post.author.username}`}
+                href={`/${userUsername}`}
                 className="text-gray-500 hover:underline"
                 onClick={(e) => e.stopPropagation()}
               >
-                @{post.author.username}
+                @{userUsername}
               </Link>
               <span className="text-gray-500">·</span>
               <span className="text-gray-500">{post.createdAt}</span>
             </div>
 
             <div className="whitespace-pre-wrap">
-              {parseContent(post.content)}
+              {parseContent(postContent)}
             </div>
 
             {/* Image Grid */}
@@ -142,58 +223,111 @@ export default function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
+            {/* Media handling for database structure */}
+            {post.media && Array.isArray(post.media) && post.media.length > 0 && !post.images && (
+              <div className={`grid gap-2 mt-3 ${getImageGridClass(post.media.length)}`}>
+                {post.media.map((mediaItem, index) => {
+                  const mediaUrl = typeof mediaItem === 'string' 
+                    ? mediaItem 
+                    : (mediaItem.url || '');
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
+                    >
+                      <Image
+                        src={mediaUrl}
+                        alt={`Post media ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Single media item handling */}
+            {post.media && !Array.isArray(post.media) && typeof post.media === 'object' && post.media.url && !post.images && (
+              <div className="mt-3">
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-800">
+                  <Image
+                    src={post.media.url}
+                    alt="Post media"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Thread Posts */}
             {post.isThread && post.threadPosts && (
               <div className="mt-4 space-y-4">
-                {post.threadPosts.map((threadPost, index) => (
-                  <div key={index} className="relative">
-                    {index < post.threadPosts!.length - 1 && (
-                      <div className="absolute left-5 top-14 w-0.5 bg-gray-800 h-[calc(100%-1rem)]" />
-                    )}
-                    
-                    <div className="border-t border-gray-800 pt-4">
-                      <div className="flex space-x-4">
-                        <div className="flex-shrink-0 flex flex-col">
-                          <Link
-                            href={`/${threadPost.author.username}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden"
-                          >
-                            {threadPost.author.avatar && (
-                              <Image
-                                src={threadPost.author.avatar}
-                                alt={threadPost.author.name}
-                                fill
-                                className="object-cover"
-                              />
-                            )}
-                          </Link>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <Link 
-                              href={`/${threadPost.author.username}`}
-                              className="font-bold hover:underline"
+                {post.threadPosts.map((threadPost, index) => {
+                  // Check if threadPost has valid user/author
+                  const hasValidThreadUser = threadPost.user && typeof threadPost.user === 'object' && 'username' in threadPost.user;
+                  const hasValidThreadAuthor = threadPost.author && typeof threadPost.author === 'object' && 'username' in threadPost.author;
+                  
+                  const threadUserObj = hasValidThreadUser ? threadPost.user : (hasValidThreadAuthor ? threadPost.author : null);
+                  const threadUserName = threadUserObj ? threadUserObj.name : 'Unknown User';
+                  const threadUserUsername = threadUserObj ? threadUserObj.username : 'unknown';
+                  const threadUserAvatar = threadUserObj && threadUserObj.avatar ? threadUserObj.avatar : 'https://api.randomx.ai/avatar/unknown';
+                  
+                  // Handle content vs text field
+                  const threadPostContent = threadPost.content || threadPost.text || '';
+                  
+                  return (
+                    <div key={index} className="relative">
+                      {index < post.threadPosts!.length - 1 && (
+                        <div className="absolute left-5 top-14 w-0.5 bg-gray-800 h-[calc(100%-1rem)]" />
+                      )}
+                      
+                      <div className="border-t border-gray-800 pt-4">
+                        <div className="flex space-x-4">
+                          <div className="flex-shrink-0 flex flex-col">
+                            <Link
+                              href={`/${threadUserUsername}`}
                               onClick={(e) => e.stopPropagation()}
+                              className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden"
                             >
-                              {threadPost.author.name}
+                              {threadUserAvatar && (
+                                <Image
+                                  src={threadUserAvatar}
+                                  alt={threadUserName}
+                                  fill
+                                  className="object-cover"
+                                />
+                              )}
                             </Link>
-                            <Link 
-                              href={`/${threadPost.author.username}`}
-                              className="text-gray-500 hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              @{threadPost.author.username}
-                            </Link>
-                            <span className="text-gray-500">·</span>
-                            <span className="text-gray-500">{threadPost.createdAt}</span>
                           </div>
-                          <p className="mt-2">{parseContent(threadPost.content)}</p>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <Link 
+                                href={`/${threadUserUsername}`}
+                                className="font-bold hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {threadUserName}
+                              </Link>
+                              <Link 
+                                href={`/${threadUserUsername}`}
+                                className="text-gray-500 hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                @{threadUserUsername}
+                              </Link>
+                              <span className="text-gray-500">·</span>
+                              <span className="text-gray-500">{threadPost.createdAt}</span>
+                            </div>
+                            <p className="mt-2">{parseContent(threadPostContent)}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -203,19 +337,23 @@ export default function PostCard({ post }: PostCardProps) {
                 <div className="p-2 rounded-full group-hover:bg-brand/10">
                   <MessageCircle className="w-4 h-4" />
                 </div>
-                <span>{formatNumber(post.stats.replies)}</span>
+                <span>{formatNumber(post.stats?.replies || post.replyCount || 0)}</span>
               </button>
               <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
                 <div className="p-2 rounded-full group-hover:bg-green-500/10">
                   <Repeat2 className="w-4 h-4" />
                 </div>
-                <span>{formatNumber(post.stats.reposts)}</span>
+                <span>{formatNumber(post.stats?.reposts || post.repostCount || 0)}</span>
               </button>
-              <button className="flex items-center space-x-2 hover:text-pink-500 group p-2">
-                <div className="p-2 rounded-full group-hover:bg-pink-500/10">
-                  <Heart className="w-4 h-4" />
+              <button 
+                className={`flex items-center space-x-2 group p-2 ${isLiked ? 'text-pink-500' : 'hover:text-pink-500 text-gray-500'}`}
+                onClick={handleLike}
+                disabled={isLikeLoading}
+              >
+                <div className={`p-2 rounded-full ${isLiked ? 'bg-pink-500/10' : 'group-hover:bg-pink-500/10'}`}>
+                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-pink-500' : ''}`} />
                 </div>
-                <span>{formatNumber(post.stats.likes)}</span>
+                <span>{formatNumber(likeCount)}</span>
               </button>
               <div className="flex items-center gap-4 text-gray-400">
                 <button
@@ -232,12 +370,13 @@ export default function PostCard({ post }: PostCardProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleBookmark();
+                      handleBookmark(e);
                     }}
-                    className="hover:text-brand transition-colors"
+                    className={`hover:text-brand transition-colors ${isBookmarkLoading ? 'opacity-50' : ''}`}
+                    disabled={isBookmarkLoading}
                   >
                     {isBookmarked ? (
-                      <BookMarked className="w-5 h-5" />
+                      <BookMarked className="w-5 h-5 text-brand" />
                     ) : (
                       <Bookmark className="w-5 h-5" />
                     )}
