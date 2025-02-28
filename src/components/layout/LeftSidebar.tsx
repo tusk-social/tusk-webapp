@@ -19,15 +19,6 @@ import { useUser } from "@/contexts/UserContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-const menuItems = [
-  { icon: Home, label: "Home", href: "/home" },
-  { icon: Search, label: "Explore", href: "/explore" },
-  { icon: Bell, label: "Notifications", href: "/notifications" },
-  // { icon: Mail, label: "Messages", href: "/messages" },
-  { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
-  { icon: User, label: "Profile", href: "/profile" },
-];
-
 // Extract NavItem into a separate component
 const NavItem = memo(
   ({
@@ -83,6 +74,21 @@ function LeftSidebar() {
   const [showPopover, setShowPopover] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
+  const menuItems = useMemo(
+    () => [
+      { icon: Home, label: "Home", href: "/home" },
+      { icon: Search, label: "Explore", href: "/explore" },
+      { icon: Bell, label: "Notifications", href: "/notifications" },
+      { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
+      {
+        icon: User,
+        label: "Profile",
+        href: user?.username ? `/${user.username}` : "/home",
+      },
+    ],
+    [user?.username],
+  );
+
   // Function to shorten wallet address
   const shortenAddress = (address: string) => {
     if (!address) return "";
@@ -133,12 +139,16 @@ function LeftSidebar() {
     () =>
       menuItems.map((item) => (
         <NavItem
-          key={item.href}
+          key={`${item.href}-${item.label}`}
           item={item}
-          isActive={pathname === item.href}
+          isActive={
+            item.label === "Profile" && user?.username
+              ? pathname === `/${user.username}`
+              : pathname === item.href
+          }
         />
       )),
-    [pathname],
+    [pathname, menuItems, user?.username],
   );
 
   return (

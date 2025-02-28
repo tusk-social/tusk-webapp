@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Calendar, Link as LinkIcon, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -6,42 +6,27 @@ import PostList from "@/components/timeline/PostList";
 import AppLayout from "@/components/layout/AppLayout";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/server-auth";
+import EditProfileButton from "@/components/profile/EditProfileButton";
+import FollowButton from "@/components/profile/FollowButton";
 
 export default async function UserProfilePage({
   params,
 }: {
-  params: Promise<{ username: string }>;
+  params: { username: string };
 }) {
-  const username = (await params).username;
-  console.log("Username param:", username);
+  const username = params.username;
 
-  let user;
-
-  // Check if this is the "profile" route (current user's profile)
-  if (username === "profile") {
-    user = await getCurrentUser();
-
-    if (!user) {
-      redirect("/");
-    }
-  } else {
-    // Find the user by username
-    try {
-      console.log("Looking up user with username:", username);
-      user = await prisma.user.findUnique({
-        where: { username },
-      });
-      console.log("User found:", user ? "Yes" : "No");
-    } catch (error) {
-      console.error("Error finding user:", error);
-      throw error;
-    }
-  }
+  const user = await prisma.user.findUnique({
+    where: { username },
+  });
 
   if (!user) {
-    console.log("User not found, showing 404");
     notFound();
   }
+
+  // Get the current user to check if this is the user's own profile
+  const currentUser = await getCurrentUser();
+  const isOwnProfile = currentUser?.id === user.id;
 
   // Format the joined date
   const joinedDate = formatDate(user.createdAt);
@@ -95,11 +80,13 @@ export default async function UserProfilePage({
             )}
           </div>
 
-          {/* Follow Button */}
+          {/* Follow/Edit Button */}
           <div className="flex justify-end pt-4">
-            <button className="px-6 py-2 rounded-full border border-gray-800 font-bold hover:bg-white/5 transition">
-              Follow
-            </button>
+            {isOwnProfile ? (
+              <EditProfileButton user={user} />
+            ) : (
+              <FollowButton userId={user.id} />
+            )}
           </div>
 
           {/* User Info */}
@@ -124,7 +111,7 @@ export default async function UserProfilePage({
                   className="flex items-center gap-1 text-brand hover:underline"
                 >
                   <LinkIcon className="w-4 h-4" />
-                  <span>{new URL(user.websiteUrl).hostname}</span>
+                  <span>{user.websiteUrl}</span>
                 </a>
               )}
               <div className="flex items-center gap-1">
