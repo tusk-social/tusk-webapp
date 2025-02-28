@@ -383,7 +383,7 @@ export default function PostCard({ post }: PostCardProps) {
                                 </Link>
                               </div>
                               <span className="text-gray-500 text-sm">
-                                {formatDate(threadPost.createdAt.toISOString())}
+                                {formatDate(threadPost.createdAt.toString())}
                               </span>
                             </div>
                             <p className="mt-2">
