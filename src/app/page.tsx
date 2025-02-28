@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import LandingPage from "@/components/LandingPage";
 
 // This is a Server Component
-export default function Home() {
-  const cookieStore = cookies();
+export default async function Home() {
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token");
 
   if (accessToken?.value) {
