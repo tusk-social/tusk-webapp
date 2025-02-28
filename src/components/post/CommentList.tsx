@@ -73,9 +73,8 @@ export default function CommentList({
         type: image ? "image" : "text",
         content: content,
         text: content,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
         user: {
-          // This will be replaced with the actual user data from the API
           username: "currentuser",
           displayName: "You",
         },

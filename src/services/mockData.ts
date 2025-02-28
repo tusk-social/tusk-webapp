@@ -1,61 +1,5 @@
 import { Post, PostType } from "@/types/post";
 
-export const SAMPLE_POST: Post = {
-  id: "1",
-  type: "text",
-  content: `Just launched Tusk - a modern Twitter alternative! 🚀\n\n  Built with @chopinframework and @celestia, for #Mammothon. What do you think?\n  `,
-  author: {
-    name: "John Doe",
-    username: "johndoe",
-    avatar: "https://api.randomx.ai/avatar/johndoe",
-  },
-  createdAt: "2h",
-  stats: {
-    replies: 42,
-    reposts: 128,
-    likes: 500,
-    views: 10000,
-  },
-  isBookmarked: false,
-  comments: [
-    {
-      id: "comment1",
-      type: "text" as PostType,
-      content: "This is amazing! Looking forward to using it. 🎉",
-      author: {
-        name: "Jane Smith",
-        username: "janesmith",
-        avatar: "https://api.randomx.ai/avatar/janesmith",
-      },
-      createdAt: "1h",
-      stats: {
-        replies: 2,
-        reposts: 1,
-        likes: 15,
-        views: 100,
-      },
-    },
-    {
-      id: "comment2",
-      type: "text" as PostType,
-      content:
-        "Great work! The UI looks really clean. How long did it take to build?",
-      author: {
-        name: "Tech Enthusiast",
-        username: "techlover",
-        avatar: "https://api.randomx.ai/avatar/techlover",
-      },
-      createdAt: "30m",
-      stats: {
-        replies: 1,
-        reposts: 0,
-        likes: 8,
-        views: 50,
-      },
-    },
-  ],
-};
-
 export const SAMPLE_NOTIFICATIONS = [
   {
     id: "1",
@@ -99,7 +43,7 @@ export const SAMPLE_BOOKMARKS: Post[] = [
       username: "techlover",
       avatar: "https://api.randomx.ai/avatar/techlover",
     },
-    createdAt: "2h",
+    createdAt: new Date(),
     stats: {
       replies: 12,
       reposts: 5,
@@ -117,7 +61,7 @@ export const SAMPLE_BOOKMARKS: Post[] = [
       username: "designpro",
       avatar: "https://api.randomx.ai/avatar/designpro",
     },
-    createdAt: "5h",
+    createdAt: new Date(),
     images: [
       "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
     ],
@@ -154,7 +98,7 @@ export const SAMPLE_POSTS: Post[] = [
       username: "johndoe",
       avatar: "https://api.randomx.ai/avatar/johndoe",
     },
-    createdAt: "2h",
+    createdAt: new Date(),
     stats: {
       replies: 12,
       reposts: 5,
@@ -171,7 +115,7 @@ export const SAMPLE_POSTS: Post[] = [
       username: "traveler",
       avatar: "https://api.randomx.ai/avatar/traveler",
     },
-    createdAt: "4h",
+    createdAt: new Date(),
     images: [
       "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
       "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
@@ -198,7 +142,7 @@ export const INITIAL_POSTS: Post[] = [
       username: "johndoe",
       avatar: "https://api.randomx.ai/avatar/johndoe",
     },
-    createdAt: "2h",
+    createdAt: new Date(),
     stats: {
       replies: 12,
       reposts: 5,
@@ -219,7 +163,7 @@ export const EXPLORE_POSTS: Post[] = [
       username: "techexplorer",
       avatar: "https://api.randomx.ai/avatar/techexplorer",
     },
-    createdAt: "2h",
+    createdAt: new Date(),
     stats: {
       replies: 45,
       reposts: 120,
@@ -237,7 +181,7 @@ export const EXPLORE_POSTS: Post[] = [
       username: "webwizard",
       avatar: "https://api.randomx.ai/avatar/webwizard",
     },
-    createdAt: "5h",
+    createdAt: new Date(),
     images: [
       "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
     ],
