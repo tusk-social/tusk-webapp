@@ -85,7 +85,7 @@ export default async function UserProfilePage({ params }: PageProps) {
           {/* Follow/Edit Button */}
           <div className="flex justify-end pt-4">
             {isOwnProfile ? (
-              <EditProfileButton user={user} />
+              <EditProfileButton user={user} refreshPage={true} />
             ) : (
               <FollowButton userId={user.id} />
             )}
@@ -113,7 +113,11 @@ export default async function UserProfilePage({ params }: PageProps) {
                   className="flex items-center gap-1 text-brand hover:underline"
                 >
                   <LinkIcon className="w-4 h-4" />
-                  <span>{user.websiteUrl}</span>
+                  <span>
+                    {user.websiteUrl
+                      .replace(/^https?:\/\//, "")
+                      .replace(/\/$/, "")}
+                  </span>
                 </a>
               )}
               <div className="flex items-center gap-1">

@@ -166,6 +166,8 @@ export default function EditProfileModal({
       newErrors.displayName = "Display name is required";
     } else if (displayName.length < 2) {
       newErrors.displayName = "Display name must be at least 2 characters";
+    } else if (displayName.length > 20) {
+      newErrors.displayName = "Display name must be at most 20 characters";
     }
 
     // Validate website URL
@@ -333,17 +335,21 @@ export default function EditProfileModal({
               >
                 Name
               </label>
-              <input
-                type="text"
-                id="displayName"
-                value={displayName}
-                onChange={handleDisplayNameChange}
-                maxLength={50}
-                className={`w-full p-3 bg-gray-800 rounded-lg border ${
-                  errors.displayName ? "border-red-500" : "border-gray-700"
-                } focus:border-brand focus:ring-1 focus:ring-brand outline-none transition`}
-                placeholder="Your name"
-              />
+              <div
+                className={`bg-gray-900 border border-gray-700 focus-within:border-brand ${errors.displayName ? "ring-1 ring-red-500" : ""}`}
+                style={{ borderRadius: "6px" }}
+              >
+                <input
+                  type="text"
+                  id="displayName"
+                  value={displayName}
+                  onChange={handleDisplayNameChange}
+                  maxLength={20}
+                  className="w-full bg-transparent border-none focus:ring-0 p-3 text-gray-100 placeholder-gray-600"
+                  style={{ borderRadius: "6px" }}
+                  placeholder="Your name"
+                />
+              </div>
               <div className="flex justify-between mt-1">
                 <div>
                   {errors.displayName && (
@@ -353,7 +359,7 @@ export default function EditProfileModal({
                     </p>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">{displayName.length}/50</p>
+                <p className="text-xs text-gray-500">{displayName.length}/20</p>
               </div>
             </div>
 
@@ -365,15 +371,21 @@ export default function EditProfileModal({
               >
                 Bio
               </label>
-              <textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                maxLength={160}
-                rows={3}
-                className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-brand focus:ring-1 focus:ring-brand outline-none transition resize-none"
-                placeholder="Describe yourself"
-              />
+              <div
+                className="bg-gray-900 border border-gray-700 focus-within:border-brand"
+                style={{ borderRadius: "6px" }}
+              >
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={160}
+                  rows={3}
+                  className="w-full bg-transparent border-none focus:ring-0 p-3 text-gray-100 placeholder-gray-600 resize-none"
+                  style={{ borderRadius: "6px" }}
+                  placeholder="Describe yourself"
+                />
+              </div>
               <p className="mt-1 text-xs text-gray-500 text-right">
                 {bio.length}/160
               </p>
@@ -387,17 +399,21 @@ export default function EditProfileModal({
               >
                 Location
               </label>
-              <input
-                type="text"
-                id="location"
-                value={location}
-                onChange={handleLocationChange}
-                maxLength={30}
-                className={`w-full p-3 bg-gray-800 rounded-lg border ${
-                  errors.location ? "border-red-500" : "border-gray-700"
-                } focus:border-brand focus:ring-1 focus:ring-brand outline-none transition`}
-                placeholder="Where you're based"
-              />
+              <div
+                className={`bg-gray-900 border border-gray-700 focus-within:border-brand ${errors.location ? "ring-1 ring-red-500" : ""}`}
+                style={{ borderRadius: "6px" }}
+              >
+                <input
+                  type="text"
+                  id="location"
+                  value={location}
+                  onChange={handleLocationChange}
+                  maxLength={30}
+                  className="w-full bg-transparent border-none focus:ring-0 p-3 text-gray-100 placeholder-gray-600"
+                  style={{ borderRadius: "6px" }}
+                  placeholder="Where you're based"
+                />
+              </div>
               {errors.location && (
                 <p className="mt-1 text-xs text-red-500 flex items-center gap-1 animate-fadeIn">
                   <AlertCircle className="w-3 h-3" />
@@ -414,16 +430,20 @@ export default function EditProfileModal({
               >
                 Website
               </label>
-              <input
-                type="url"
-                id="website"
-                value={websiteUrl}
-                onChange={handleWebsiteChange}
-                className={`w-full p-3 bg-gray-800 rounded-lg border ${
-                  errors.websiteUrl ? "border-red-500" : "border-gray-700"
-                } focus:border-brand focus:ring-1 focus:ring-brand outline-none transition`}
-                placeholder="https://example.com"
-              />
+              <div
+                className={`bg-gray-900 border border-gray-700 focus-within:border-brand ${errors.websiteUrl ? "ring-1 ring-red-500" : ""}`}
+                style={{ borderRadius: "6px" }}
+              >
+                <input
+                  type="url"
+                  id="website"
+                  value={websiteUrl}
+                  onChange={handleWebsiteChange}
+                  className="w-full bg-transparent border-none focus:ring-0 p-3 text-gray-100 placeholder-gray-600"
+                  style={{ borderRadius: "6px" }}
+                  placeholder="https://example.com"
+                />
+              </div>
               {errors.websiteUrl && (
                 <p className="mt-1 text-xs text-red-500 flex items-center gap-1 animate-fadeIn">
                   <AlertCircle className="w-3 h-3" />

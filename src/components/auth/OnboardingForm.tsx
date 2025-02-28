@@ -49,6 +49,9 @@ export default function OnboardingForm() {
     if (!displayName.trim()) {
       newErrors.displayName = "Display name is required";
       valid = false;
+    } else if (displayName.length > 20) {
+      newErrors.displayName = "Display name must be at most 20 characters";
+      valid = false;
     }
 
     if (!username.trim()) {
@@ -163,6 +166,7 @@ export default function OnboardingForm() {
                 name="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                maxLength={20}
                 className={`w-full px-4 py-4 bg-black/50 backdrop-blur-sm border ${
                   errors.displayName ? "border-red-500" : "border-purple-800/50"
                 } rounded-xl 
@@ -172,6 +176,9 @@ export default function OnboardingForm() {
                 placeholder="Your name"
                 required
               />
+              <p className="text-xs text-gray-500 text-right">
+                {displayName.length}/20
+              </p>
             </div>
 
             <div className="space-y-2">

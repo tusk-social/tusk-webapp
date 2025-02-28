@@ -14,6 +14,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate display name length
+    if (displayName.length > 20) {
+      return NextResponse.json(
+        { error: "Display name must be at most 20 characters long" },
+        { status: 400 },
+      );
+    }
+
     // Validate username length
     if (username.length < 6) {
       return NextResponse.json(

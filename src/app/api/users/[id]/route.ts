@@ -79,6 +79,13 @@ export async function PATCH(request: NextRequest, props: Params) {
       );
     }
 
+    if (displayName.length > 20) {
+      return NextResponse.json(
+        { error: "Display name must be at most 20 characters" },
+        { status: 400 },
+      );
+    }
+
     if (websiteUrl && !isValidUrl(websiteUrl)) {
       return NextResponse.json(
         { error: "Please enter a valid URL" },
