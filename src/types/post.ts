@@ -1,5 +1,12 @@
 export type PostType = "text" | "image" | "thread";
 
+export type MediaType = "image" | "gif" | "video";
+
+export interface MediaItem {
+  url: string;
+  type: MediaType;
+}
+
 export interface Post {
   id: string;
   type?: PostType;
@@ -33,9 +40,7 @@ export interface Post {
   bookmarkCount?: number;
 
   images?: string[];
-  media?:
-    | Array<string | { url: string; type?: string }>
-    | { url: string; type?: string };
+  media?: Array<string | MediaItem> | MediaItem;
   isThread?: boolean;
   threadPosts?: Omit<Post, "threadPosts">[];
   isBookmarked?: boolean;

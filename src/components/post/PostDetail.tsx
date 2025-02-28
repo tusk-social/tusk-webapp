@@ -74,6 +74,17 @@ export default function PostDetail({ post }: PostDetailProps) {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
+  // Try to parse media if it's a string
+  let parsedMedia = post.media;
+  if (typeof post.media === "string") {
+    try {
+      parsedMedia = JSON.parse(post.media);
+      console.log("PostDetail - Parsed media from string:", parsedMedia);
+    } catch (e) {
+      console.error("PostDetail - Failed to parse media string:", e);
+    }
+  }
+
   const hasValidUser =
     post.user && typeof post.user === "object" && "username" in post.user;
 
@@ -248,31 +259,46 @@ export default function PostDetail({ post }: PostDetailProps) {
         )}
 
         {/* Media handling for database structure */}
-        {post.media &&
-          Array.isArray(post.media) &&
-          post.media.length > 0 &&
+        {parsedMedia &&
+          Array.isArray(parsedMedia) &&
+          parsedMedia.length > 0 &&
           !post.images && (
             <div className="px-4">
               <div
-                className={`grid gap-2 ${getImageGridClass(post.media.length)}`}
+                className={`grid gap-2 ${getImageGridClass(parsedMedia.length)}`}
               >
-                {post.media.map((mediaItem, index) => {
+                {parsedMedia.map((mediaItem, index) => {
+                  // Handle string or object media items
                   const mediaUrl =
                     typeof mediaItem === "string"
                       ? mediaItem
                       : mediaItem.url || "";
+
+                  // Check if it's a GIF
+                  const isGif =
+                    typeof mediaItem === "object" && mediaItem.type === "gif";
 
                   return (
                     <div
                       key={index}
                       className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
                     >
-                      <Image
-                        src={mediaUrl}
-                        alt={`Post media ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
+                      {isGif ? (
+                        // For GIFs, use a regular img tag
+                        <img
+                          src={mediaUrl}
+                          alt={`GIF ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        // For other media types, use Next.js Image
+                        <Image
+                          src={mediaUrl}
+                          alt={`Post media ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                   );
                 })}
@@ -281,19 +307,29 @@ export default function PostDetail({ post }: PostDetailProps) {
           )}
 
         {/* Single media item handling */}
-        {post.media &&
-          !Array.isArray(post.media) &&
-          typeof post.media === "object" &&
-          post.media.url &&
+        {parsedMedia &&
+          !Array.isArray(parsedMedia) &&
+          typeof parsedMedia === "object" &&
+          parsedMedia.url &&
           !post.images && (
             <div className="px-4">
               <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-800">
-                <Image
-                  src={post.media.url}
-                  alt="Post media"
-                  fill
-                  className="object-cover"
-                />
+                {parsedMedia.type === "gif" ? (
+                  // For GIFs, use a regular img tag instead of Next.js Image
+                  <img
+                    src={parsedMedia.url}
+                    alt="GIF"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  // For other media types (images), use Next.js Image
+                  <Image
+                    src={parsedMedia.url}
+                    alt="Post media"
+                    fill
+                    className="object-cover"
+                  />
+                )}
               </div>
             </div>
           )}

@@ -63,6 +63,33 @@ export default function PostCard({ post }: PostCardProps) {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const router = useRouter();
 
+  // Try to parse media if it's a string
+  let parsedMedia = post.media;
+  if (typeof post.media === "string") {
+    try {
+      parsedMedia = JSON.parse(post.media);
+      console.log("Parsed media from string:", parsedMedia);
+    } catch (e) {
+      console.error("Failed to parse media string:", e);
+    }
+  }
+
+  // Debug media object
+  console.log("Post media (original):", post.media);
+  console.log("Post media (parsed):", parsedMedia);
+  console.log("Is array?", Array.isArray(parsedMedia));
+  console.log(
+    "Is object?",
+    typeof parsedMedia === "object" && !Array.isArray(parsedMedia),
+  );
+  console.log(
+    "Has URL?",
+    parsedMedia &&
+      typeof parsedMedia === "object" &&
+      !Array.isArray(parsedMedia) &&
+      "url" in parsedMedia,
+  );
+
   // Check if post has the expected structure for user/author
   const hasValidUser =
     post.user && typeof post.user === "object" && "username" in post.user;
@@ -119,18 +146,15 @@ export default function PostCard({ post }: PostCardProps) {
         );
       }
 
-      // Update local state
       setIsBookmarked(!isBookmarked);
     } catch (error) {
       console.error("Error toggling bookmark:", error);
-      // You could add toast notification here
     } finally {
       setIsBookmarkLoading(false);
     }
   };
 
   const handleShare = () => {
-    // TODO: Add share functionality
     if (navigator.share) {
       navigator
         .share({
@@ -262,30 +286,45 @@ export default function PostCard({ post }: PostCardProps) {
             )}
 
             {/* Media handling for database structure */}
-            {post.media &&
-              Array.isArray(post.media) &&
-              post.media.length > 0 &&
+            {parsedMedia &&
+              Array.isArray(parsedMedia) &&
+              parsedMedia.length > 0 &&
               !post.images && (
                 <div
-                  className={`grid gap-2 mt-3 ${getImageGridClass(post.media.length)}`}
+                  className={`grid gap-2 mt-3 ${getImageGridClass(parsedMedia.length)}`}
                 >
-                  {post.media.map((mediaItem, index) => {
+                  {parsedMedia.map((mediaItem, index) => {
+                    // Handle string or object media items
                     const mediaUrl =
                       typeof mediaItem === "string"
                         ? mediaItem
                         : mediaItem.url || "";
+
+                    // Check if it's a GIF
+                    const isGif =
+                      typeof mediaItem === "object" && mediaItem.type === "gif";
 
                     return (
                       <div
                         key={index}
                         className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
                       >
-                        <Image
-                          src={mediaUrl}
-                          alt={`Post media ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
+                        {isGif ? (
+                          // For GIFs, use a regular img tag
+                          <img
+                            src={mediaUrl}
+                            alt={`GIF ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          // For other media types, use Next.js Image
+                          <Image
+                            src={mediaUrl}
+                            alt={`Post media ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
                       </div>
                     );
                   })}
@@ -293,19 +332,40 @@ export default function PostCard({ post }: PostCardProps) {
               )}
 
             {/* Single media item handling */}
-            {post.media &&
-              !Array.isArray(post.media) &&
-              typeof post.media === "object" &&
-              post.media.url &&
-              !post.images && (
+            {parsedMedia &&
+              !Array.isArray(parsedMedia) &&
+              typeof parsedMedia === "object" &&
+              (parsedMedia.url || (parsedMedia as any).url) && (
                 <div className="mt-3">
                   <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-800">
-                    <Image
-                      src={post.media.url}
-                      alt="Post media"
-                      fill
-                      className="object-cover"
-                    />
+                    {/* Try to access media properties safely */}
+                    {(() => {
+                      // Ensure we have a proper media object with url
+                      const mediaObj = parsedMedia as any;
+                      const mediaUrl = mediaObj.url || "";
+                      const mediaType = mediaObj.type || "image";
+
+                      console.log("Rendering media:", { mediaUrl, mediaType });
+
+                      if (mediaType === "gif") {
+                        return (
+                          <img
+                            src={mediaUrl}
+                            alt="GIF"
+                            className="w-full h-full object-cover"
+                          />
+                        );
+                      } else {
+                        return (
+                          <Image
+                            src={mediaUrl}
+                            alt="Post media"
+                            fill
+                            className="object-cover"
+                          />
+                        );
+                      }
+                    })()}
                   </div>
                 </div>
               )}

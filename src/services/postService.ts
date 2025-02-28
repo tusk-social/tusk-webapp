@@ -232,9 +232,34 @@ export const postService = {
     }) as Promise<PostWithRelations>;
   },
 
+  // Helper function to parse media field
+  parsePostMedia(post: any): any {
+    if (!post) return post;
+
+    // Parse media if it's a string
+    if (post.media && typeof post.media === "string") {
+      try {
+        post.media = JSON.parse(post.media);
+      } catch (e) {
+        console.error("Error parsing post media:", e);
+      }
+    }
+
+    // Parse media in related posts
+    if (post.parentPost) {
+      this.parsePostMedia(post.parentPost);
+    }
+
+    if (post.repostPost) {
+      this.parsePostMedia(post.repostPost);
+    }
+
+    return post;
+  },
+
   // Get a single post by ID
   async getPostById(id: string): Promise<PostWithRelations | null> {
-    return prisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id, deletedAt: null },
       include: {
         user: true,
@@ -266,6 +291,8 @@ export const postService = {
         },
       },
     });
+
+    return this.parsePostMedia(post);
   },
 
   // Get posts for a user's timeline
@@ -344,7 +371,13 @@ export const postService = {
       prisma.post.count({ where }),
     ]);
 
-    return { posts, total };
+    // Parse media for each post
+    const parsedPosts = posts.map((post) => this.parsePostMedia(post));
+
+    return {
+      posts: parsedPosts,
+      total,
+    };
   },
 
   // Get posts by a specific user
@@ -419,7 +452,10 @@ export const postService = {
       prisma.post.count({ where }),
     ]);
 
-    return { posts, total };
+    // Parse media for each post
+    const parsedPosts = posts.map((post) => this.parsePostMedia(post));
+
+    return { posts: parsedPosts, total };
   },
 
   // Like a post
