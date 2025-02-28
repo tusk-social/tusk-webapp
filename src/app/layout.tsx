@@ -6,6 +6,7 @@ import { PostModalProvider } from "@/context/PostModalContext";
 import { MemeModalProvider } from "@/context/MemeModalContext";
 import Providers from "@/components/providers/Providers";
 import { UserProvider } from "@/contexts/UserContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
             </PostModalProvider>
           </Providers>
         </UserProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
