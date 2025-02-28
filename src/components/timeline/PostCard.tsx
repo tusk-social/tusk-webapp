@@ -232,7 +232,7 @@ export default function PostCard({ post }: PostCardProps) {
                 </Link>
               </div>
               <span className="text-gray-500 text-sm">
-                {formatDate(post.createdAt)}
+                {formatDate(post.createdAt.toISOString())}
               </span>
             </div>
 
@@ -383,7 +383,7 @@ export default function PostCard({ post }: PostCardProps) {
                                 </Link>
                               </div>
                               <span className="text-gray-500 text-sm">
-                                {formatDate(threadPost.createdAt)}
+                                {formatDate(threadPost.createdAt.toISOString())}
                               </span>
                             </div>
                             <p className="mt-2">
