@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint --dir src",
     "lint:fix": "next lint --dir src --fix",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "prisma:generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chopinframework/next": "^1.1.3",
