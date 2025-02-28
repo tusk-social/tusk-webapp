@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { decodeJwt } from "@/lib/jwt";
 
 // This is a Server Component
-export default function TempPage() {
-  const cookieStore = cookies();
+export default async function TempPage() {
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token");
 
   // Check if access_token exists
