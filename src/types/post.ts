@@ -1,4 +1,4 @@
-export type PostType = 'text' | 'image' | 'thread';
+export type PostType = "text" | "image" | "thread";
 
 export interface Post {
   id: string;
@@ -6,12 +6,14 @@ export interface Post {
   content?: string;
   text?: string; // Alternative field name from database
   author?: {
-    name: string;
+    name?: string;
+    displayName?: string;
     username: string;
     avatar?: string;
   };
   user?: {
-    name: string;
+    name?: string;
+    displayName?: string;
     username: string;
     avatar?: string;
     id?: string;
@@ -29,17 +31,19 @@ export interface Post {
   likeCount?: number;
   viewCount?: number;
   bookmarkCount?: number;
-  
+
   images?: string[];
-  media?: Array<string | { url: string; type?: string }> | { url: string; type?: string };
+  media?:
+    | Array<string | { url: string; type?: string }>
+    | { url: string; type?: string };
   isThread?: boolean;
-  threadPosts?: Omit<Post, 'threadPosts'>[];
+  threadPosts?: Omit<Post, "threadPosts">[];
   isBookmarked?: boolean;
   comments?: Post[];
-  
+
   // Additional fields that might be in the database
   parentPostId?: string;
   parentPost?: Post;
   repostPostId?: string;
   repostPost?: Post;
-} 
+}
