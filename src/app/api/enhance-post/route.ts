@@ -60,13 +60,15 @@ export async function POST(request: NextRequest) {
     const enhancedPost = completion.choices[0].message.content;
 
     if (!enhancedPost) {
-      throw new Error("No response from OpenAI");
+      throw new Error("No response from AI");
     }
 
-    const cleanedPost = enhancedPost.replace(/^"+|"+$/g, "").trim();
+    let cleanedPost = enhancedPost.replace(/^"+|"+$/g, "").trim();
 
     console.log("Enhanced post:", cleanedPost);
 
+    // let's make sure MARKDOWN is not used
+    cleanedPost = cleanedPost.replace(/^#+/, "").trim();
     return NextResponse.json({ enhancedPost: cleanedPost });
   } catch (error: any) {
     console.error("OpenAI API Error:", error);

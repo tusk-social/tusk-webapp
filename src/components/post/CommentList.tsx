@@ -6,6 +6,7 @@ import PostCard from "../timeline/PostCard";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import CommentInput from "./CommentInput";
+import { useUser } from "@/context/UserContext";
 
 interface CommentListProps {
   postId: string;
@@ -17,6 +18,7 @@ export default function CommentList({
   initialComments = [],
 }: CommentListProps) {
   const router = useRouter();
+  const { user } = useUser();
   const [comments, setComments] = useState<Post[]>(initialComments);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -75,8 +77,8 @@ export default function CommentList({
         text: content,
         createdAt: new Date(),
         user: {
-          username: "currentuser",
-          displayName: "You",
+          username: user?.username || "",
+          displayName: user?.displayName || "",
         },
         stats: {
           replies: 0,

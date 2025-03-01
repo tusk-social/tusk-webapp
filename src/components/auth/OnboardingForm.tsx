@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/context/UserContext";
 import SplitLayout from "@/components/layout/SplitLayout";
 import toast from "react-hot-toast";
 import { AlertCircle } from "lucide-react";
