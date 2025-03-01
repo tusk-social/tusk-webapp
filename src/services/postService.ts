@@ -72,10 +72,12 @@ function extractMentions(text: string): string[] {
   let match;
 
   while ((match = mentionRegex.exec(text)) !== null) {
-    mentions.push(match[1]);
+    // remove any trailing non-alphanumeric and non-underscore characters
+    const username = match[1].replace(/[^a-zA-Z0-9_]/g, "");
+    mentions.push(username);
   }
 
-  return [...new Set(mentions)]; // Remove duplicates
+  return [...new Set(mentions)]; // remove duplicates
 }
 
 function extractHashtags(text: string): string[] {
@@ -84,10 +86,12 @@ function extractHashtags(text: string): string[] {
   let match;
 
   while ((match = hashtagRegex.exec(text)) !== null) {
-    hashtags.push(match[1]);
+    // remove any trailing non-alphanumeric and non-underscore characters
+    const hashtag = match[1].replace(/[^a-zA-Z0-9_]/g, "");
+    hashtags.push(hashtag);
   }
 
-  return [...new Set(hashtags)]; // Remove duplicates
+  return [...new Set(hashtags)]; // remove duplicates
 }
 
 // Post Service
