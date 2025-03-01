@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Tusk - Decentralized Social Media Platform
 
-First, run the development server:
+  
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Tusk is a decentralized social media platform - built on modern web technologies and blockchain infrastructure for Mammothon challenge. The platform provides a Twitter-like experience with enhanced privacy, data ownership, and censorship resistance through its integration with decentralized technologies.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Core Technology Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+-  **Frontend Framework**: Next.js 14 with App Router
 
-To learn more about Next.js, take a look at the following resources:
+-  **UI Framework**: Tailwind CSS for styling
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-  **Authentication**: Server-side authentication system
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-  **Database**: Prisma ORM with PostgreSQL
 
-## Deploy on Vercel
+-  **Data Availability Layer**: Celestia (via Chopin Framework)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-  **Image Storage**: Vercel Blob for scalable image hosting
+  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Key Features
+
+
+### User Experience
+
+-  **Timeline Feed**: Personalized feed showing posts from followed users
+
+-  **Explore Page**: Discover trending topics and popular posts
+
+-  **Search Functionality**: Search for users, hashtags, and content
+
+-  **User Profiles**: Customizable profiles with avatars and bio information
+
+-  **Post Creation**: Create posts with text and image support
+
+-  **Commenting System**: Engage with posts through comments
+
+-  **Mentions**: Tag other users with @ mentions and receive suggestions
+
+-  **Hashtags**: Categorize content and discover related posts
+
+-  **Real-time Updates**: Automatic timeline refreshing
+
+  
+
+### AI Integration
+
+-  **Content Enhancement**: AI-powered suggestions for improving post content
+
+-  **Smart Replies**: Intelligent reply suggestions based on post context
+
+-  **Content Moderation**: AI-assisted moderation to maintain community standards
+
+-  **Sentiment Analysis**: Understanding the emotional tone of posts and comments
+
+-  **Personalized Recommendations**: AI-driven content discovery based on user interests
+
+-  **Automated Hashtag Suggestions**: Intelligent hashtag recommendations for posts
+
+-  **Language Translation**: Automatic translation of posts in different languages
+
+  
+
+### Rich Media Support
+
+-  **GIF Integration**: Seamless embedding of GIFs in posts and comments
+
+-  **Meme Generator**: Built-in tools to create and customize memes
+
+  
+
+### Decentralization Features
+
+-  **Data Availability**: All content is anchored to Celestia's data availability layer through the Chopin Framework
+
+-  **Censorship Resistance**: Content cannot be arbitrarily removed once published to the DA layer
+
+  
+
+### Technical Highlights
+
+-  **Server-Side Rendering**: Improved performance and SEO
+
+-  **API Routes**: RESTful API endpoints for data operations
+
+-  **Error Handling**: Comprehensive error management with user feedback
+
+-  **State Management**: Efficient client-side state management
+
+  
+
+## Chopin Framework Integration
+
+  
+
+The Chopin Framework serves as a middleware layer that connects the application to Celestia's data availability layer. This integration provides:
+
+  
+
+1.  **Immutable Data Storage**: Once data is published, it cannot be altered
+
+2.  **Verifiable Data**: All data can be cryptographically verified
+
+3.  **Censorship Resistance**: No central authority can remove content from the DA layer
+
+4.  **Scalability**: Celestia's data availability sampling enables efficient scaling
+
+  
+
+## Future Enhancements
+
+  
+
+-  **Decentralized Identity**: Integration with decentralized identity solutions
+
+-  **Token-based Incentives**: Reward system for content creation and curation
+
+-  **Governance Mechanisms**: Community-driven platform governance
+
+-  **Enhanced Privacy Features**: Additional privacy controls for users
+
+-  **Cross-platform Clients**: Native mobile applications
+
+  
+
+Tusk represents a new generation of social media platforms that combine the user experience of traditional centralized services with the benefits of decentralized technology, creating a more open, resilient, and user-centric social network.
+
+
