@@ -14,7 +14,6 @@ import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import { USERS_LIST } from "@/services/mockData";
 import { useMemeModal } from "@/context/MemeModalContext";
 import { toast } from "react-hot-toast";
 import Tooltip from "@/components/ui/Tooltip";
@@ -41,7 +40,11 @@ interface MentionUser {
   bio: string;
 }
 
-export default function CreatePost({ onPost, parentPostId, repostPostId }: CreatePostProps) {
+export default function CreatePost({
+  onPost,
+  parentPostId,
+  repostPostId,
+}: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -204,7 +207,10 @@ export default function CreatePost({ onPost, parentPostId, repostPostId }: Creat
   };
 
   const handlePost = async () => {
-    if ((!content.trim() && !selectedGif && !image) || content.length > MAX_CHARS) {
+    if (
+      (!content.trim() && !selectedGif && !image) ||
+      content.length > MAX_CHARS
+    ) {
       return;
     }
 
@@ -240,15 +246,15 @@ export default function CreatePost({ onPost, parentPostId, repostPostId }: Creat
       }
 
       const newPost = await response.json();
-      
+
       // Call the onPost callback with the new post
       onPost(newPost);
-      
+
       // Reset form state
       setContent("");
       setImage(null);
       setSelectedGif(null);
-      
+
       // Show success message
       toast.success("Post created successfully!");
     } catch (err: any) {
@@ -307,7 +313,7 @@ export default function CreatePost({ onPost, parentPostId, repostPostId }: Creat
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
-    
+
     // Validate content length
     if (newContent.length <= MAX_CHARS) {
       setContent(newContent);
@@ -461,7 +467,13 @@ export default function CreatePost({ onPost, parentPostId, repostPostId }: Creat
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
               className={`w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder-gray-600 min-h-[72px] ${showMentionSuggestions ? "mention-active" : ""}`}
-              placeholder={parentPostId ? "Write your reply..." : repostPostId ? "Add a comment..." : "What's happening?"}
+              placeholder={
+                parentPostId
+                  ? "Write your reply..."
+                  : repostPostId
+                    ? "Add a comment..."
+                    : "What's happening?"
+              }
               maxRows={8}
               disabled={isSubmitting}
             />
@@ -506,14 +518,14 @@ export default function CreatePost({ onPost, parentPostId, repostPostId }: Creat
               </div>
             )}
 
-            {error && (
-              <div className="text-red-500 text-sm">{error}</div>
-            )}
+            {error && <div className="text-red-500 text-sm">{error}</div>}
 
             <div className="flex items-center justify-between pt-4">
               <div className="flex items-center space-x-2">
                 <Tooltip text="Upload image">
-                  <label className={`${iconButtonClass} ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                  <label
+                    className={`${iconButtonClass} ${isSubmitting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
                     <ImageIcon className="w-5 h-5 text-brand" />
                     <input
                       type="file"

@@ -33,48 +33,6 @@ export const SAMPLE_NOTIFICATIONS = [
   },
 ];
 
-export const SAMPLE_BOOKMARKS: Post[] = [
-  {
-    id: "1",
-    type: "text",
-    content: "This is a bookmarked post about #coding and #webdev",
-    author: {
-      name: "Tech Enthusiast",
-      username: "techlover",
-      avatar: "https://api.randomx.ai/avatar/techlover",
-    },
-    createdAt: new Date(),
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240,
-    },
-    isBookmarked: true,
-  },
-  {
-    id: "2",
-    type: "image",
-    content: "Saved this amazing design inspiration for later! 🎨",
-    author: {
-      name: "Design Master",
-      username: "designpro",
-      avatar: "https://api.randomx.ai/avatar/designpro",
-    },
-    createdAt: new Date(),
-    images: [
-      "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
-    ],
-    stats: {
-      replies: 8,
-      reposts: 15,
-      likes: 122,
-      views: 1800,
-    },
-    isBookmarked: true,
-  },
-];
-
 export const MOCK_USER = {
   name: "John Doe",
   username: "johndoe",
@@ -87,71 +45,6 @@ export const MOCK_USER = {
   following: 420,
   followers: 69,
 };
-
-export const SAMPLE_POSTS: Post[] = [
-  {
-    id: "1",
-    type: "text",
-    content: `Just launched Tusk - a modern Twitter alternative! 🚀\n\nBuilt with @chopinframework and @celestia, for #Mammothon. What do you think?`,
-    author: {
-      name: "John Doe",
-      username: "johndoe",
-      avatar: "https://api.randomx.ai/avatar/johndoe",
-    },
-    createdAt: new Date(),
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240,
-    },
-  },
-  {
-    id: "2",
-    type: "image",
-    content: "Check out these amazing photos from my trip! 📸",
-    author: {
-      name: "Travel Enthusiast",
-      username: "traveler",
-      avatar: "https://api.randomx.ai/avatar/traveler",
-    },
-    createdAt: new Date(),
-    images: [
-      "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
-      "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
-      "https://newatlas-brightspot.s3.amazonaws.com/58/9e/def2b10348ad8512822a2679a30d/mammoth.jpg",
-    ],
-    stats: {
-      replies: 45,
-      reposts: 122,
-      likes: 1200,
-      views: 15400,
-    },
-  },
-];
-
-export const SAMPLE_COMMENTS = new Map<string, Post[]>();
-
-export const INITIAL_POSTS: Post[] = [
-  {
-    id: "1",
-    type: "text",
-    content: `Just launched Tusk - a modern Twitter alternative! 🚀\n\nBuilt with @chopinframework and @celestia, for #Mammothon. What do you think? #webdev`,
-    author: {
-      name: "John Doe",
-      username: "johndoe",
-      avatar: "https://api.randomx.ai/avatar/johndoe",
-    },
-    createdAt: new Date(),
-    stats: {
-      replies: 12,
-      reposts: 5,
-      likes: 28,
-      views: 1240,
-    },
-  },
-  // ... other initial posts
-];
 
 export const EXPLORE_POSTS: Post[] = [
   {
@@ -193,8 +86,6 @@ export const EXPLORE_POSTS: Post[] = [
     },
   },
 ];
-
-export const WHO_TO_FOLLOW = [];
 
 export const TRENDING_TOPICS = [
   {

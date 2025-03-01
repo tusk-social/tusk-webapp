@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { WHO_TO_FOLLOW } from "@/services/mockData";
 import { memo, useMemo, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
@@ -144,7 +143,7 @@ const UserToFollow = memo(
 UserToFollow.displayName = "UserToFollow";
 
 function WhoToFollow() {
-  const [users, setUsers] = useState(WHO_TO_FOLLOW);
+  const [users, setUsers] = useState([]);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
