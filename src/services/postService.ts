@@ -727,11 +727,94 @@ export const postService = {
 
   // Count replies for a specific post
   async getPostRepliesCount(postId: string): Promise<number> {
-    return prisma.post.count({
+    const count = await prisma.post.count({
       where: {
         parentPostId: postId,
-        deletedAt: null,
       },
     });
+    return count;
+  },
+
+  // Get bookmarked posts for a user
+  async getBookmarkedPosts(
+    userId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<{
+    posts: PostWithRelations[];
+    total: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    // Get bookmarks for the user
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId,
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        post: {
+          include: {
+            user: true,
+            parentPost: {
+              include: {
+                user: true,
+              },
+            },
+            repostPost: {
+              include: {
+                user: true,
+              },
+            },
+            likes: {
+              include: {
+                user: true,
+              },
+            },
+            bookmarks: true,
+            mentions: {
+              include: {
+                mentionedUser: true,
+              },
+            },
+            postHashtags: {
+              include: {
+                hashtag: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Extract posts from bookmarks
+    const posts = bookmarks.map((bookmark) => {
+      const post = bookmark.post;
+
+      // Parse media if it's a string
+      this.parsePostMedia(post);
+
+      // Add isBookmarked flag
+      return {
+        ...post,
+        isBookmarked: true,
+      };
+    }) as PostWithRelations[];
+
+    // Get total count
+    const total = await prisma.bookmark.count({
+      where: {
+        userId,
+      },
+    });
+
+    return {
+      posts,
+      total,
+    };
   },
 };

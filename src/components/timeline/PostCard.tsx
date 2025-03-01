@@ -14,9 +14,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "react-hot-toast";
 
 interface PostCardProps {
   post: Post;
+  onUnbookmark?: (postId: string) => void;
 }
 
 // Helper functions
@@ -81,7 +83,7 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, onUnbookmark }: PostCardProps) {
   // State
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
   const [isLiked, setIsLiked] = useState(false);
@@ -152,9 +154,27 @@ export default function PostCard({ post }: PostCardProps) {
         );
       }
 
-      setIsBookmarked(!isBookmarked);
+      // If we're unbookmarking and there's an onUnbookmark callback, call it
+      if (isBookmarked && onUnbookmark) {
+        onUnbookmark(post.id);
+      } else {
+        setIsBookmarked(!isBookmarked);
+        toast.success(
+          isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+          {
+            icon: isBookmarked ? "🗑️" : "🔖",
+            duration: 2000,
+          },
+        );
+      }
     } catch (error) {
       console.error("Error toggling bookmark:", error);
+      toast.error(
+        `Failed to ${isBookmarked ? "remove from" : "add to"} bookmarks`,
+        {
+          duration: 3000,
+        },
+      );
     } finally {
       setIsBookmarkLoading(false);
     }

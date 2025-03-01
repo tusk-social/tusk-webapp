@@ -147,10 +147,16 @@ export default function PostDetail({ post }: PostDetailProps) {
       setIsBookmarked(!isBookmarked);
       toast.success(
         isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+        {
+          icon: isBookmarked ? "🗑️" : "🔖",
+          duration: 2000,
+        },
       );
     } catch (error) {
       console.error("Error toggling bookmark:", error);
-      toast.error("Failed to update bookmark");
+      toast.error("Failed to update bookmark", {
+        duration: 3000,
+      });
     } finally {
       setIsBookmarkLoading(false);
     }
