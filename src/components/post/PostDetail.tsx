@@ -284,11 +284,10 @@ export default function PostDetail({ post }: PostDetailProps) {
                       className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
                     >
                       {isGif ? (
-                        // For GIFs, use a regular img tag
                         <img
                           src={mediaUrl}
                           alt={`GIF ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full object-cover"
                         />
                       ) : (
                         // For other media types, use Next.js Image

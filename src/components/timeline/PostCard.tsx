@@ -19,6 +19,7 @@ interface PostCardProps {
   post: Post;
 }
 
+// Helper functions
 function parseContent(content: string | undefined | null) {
   if (!content) return "";
 
@@ -53,7 +54,33 @@ function parseContent(content: string | undefined | null) {
   });
 }
 
+function getImageGridClass(imageCount: number): string {
+  switch (imageCount) {
+    case 1:
+      return "grid-cols-1";
+    case 2:
+      return "grid-cols-2";
+    case 3:
+      return "grid-cols-2";
+    case 4:
+      return "grid-cols-2";
+    default:
+      return "grid-cols-2";
+  }
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+}
+
 export default function PostCard({ post }: PostCardProps) {
+  // State
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(
@@ -63,34 +90,17 @@ export default function PostCard({ post }: PostCardProps) {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const router = useRouter();
 
-  // Try to parse media if it's a string
+  // Parse media data
   let parsedMedia = post.media;
   if (typeof post.media === "string") {
     try {
       parsedMedia = JSON.parse(post.media);
-      console.log("Parsed media from string:", parsedMedia);
     } catch (e) {
       console.error("Failed to parse media string:", e);
     }
   }
 
-  // Debug media object
-  console.log("Post media (original):", post.media);
-  console.log("Post media (parsed):", parsedMedia);
-  console.log("Is array?", Array.isArray(parsedMedia));
-  console.log(
-    "Is object?",
-    typeof parsedMedia === "object" && !Array.isArray(parsedMedia),
-  );
-  console.log(
-    "Has URL?",
-    parsedMedia &&
-      typeof parsedMedia === "object" &&
-      !Array.isArray(parsedMedia) &&
-      "url" in parsedMedia,
-  );
-
-  // Check if post has the expected structure for user/author
+  // User data extraction
   const hasValidUser =
     post.user && typeof post.user === "object" && "username" in post.user;
   const userObj = hasValidUser ? post.user : null;
@@ -103,41 +113,35 @@ export default function PostCard({ post }: PostCardProps) {
       ? userObj.avatar
       : "https://api.randomx.ai/avatar/unknown";
 
-  // Handle content vs text field
+  // Content data
   const postContent = post.content || post.text || "";
 
-  // Format the date to be human-readable
+  // Format date to human-readable
   const formatDate = (dateString: string) => {
     try {
-      // Check if the date is already in a human-readable format like "2h" or "3d"
       if (/^\d+[smhdwy]$/.test(dateString)) {
         return dateString;
       }
-
       const date = new Date(dateString);
       return formatDistanceToNow(date, { addSuffix: true });
     } catch (error) {
       console.error("Error formatting date:", error);
-      return dateString; // Return the original string if there's an error
+      return dateString;
     }
   };
 
+  // Event handlers
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
     if (isBookmarkLoading) return;
 
     try {
       setIsBookmarkLoading(true);
-
       const endpoint = `/api/posts/${post.id}/bookmark`;
       const method = isBookmarked ? "DELETE" : "POST";
-
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
@@ -172,36 +176,282 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
     if (isLikeLoading) return;
 
     try {
       setIsLikeLoading(true);
-
       const endpoint = `/api/posts/${post.id}/like`;
       const method = isLiked ? "DELETE" : "POST";
-
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
         throw new Error(`Failed to ${isLiked ? "unlike" : "like"} post`);
       }
 
-      // Update local state
       setIsLiked(!isLiked);
       setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
     } catch (error) {
       console.error("Error toggling like:", error);
-      // You could add toast notification here
     } finally {
       setIsLikeLoading(false);
     }
   };
+
+  // Render components
+  const renderUserAvatar = () => (
+    <div className="flex-shrink-0 flex flex-col">
+      <Link
+        href={`/${userUsername}`}
+        onClick={(e) => e.stopPropagation()}
+        className="w-12 h-12 rounded-full bg-gray-800 relative overflow-hidden"
+      >
+        {userAvatar && (
+          <Image
+            src={userAvatar}
+            alt={userName}
+            fill
+            className="object-cover"
+          />
+        )}
+      </Link>
+      {post.isThread && post.threadPosts && post.threadPosts.length > 0 && (
+        <div className="w-0.5 bg-gray-800 mx-auto flex-1 my-2" />
+      )}
+    </div>
+  );
+
+  const renderUserInfo = () => (
+    <div className="flex flex-wrap items-center justify-between">
+      <div className="flex items-center gap-x-2">
+        <Link
+          href={`/${userUsername}`}
+          className="font-bold hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {userName}
+        </Link>
+        <Link
+          href={`/${userUsername}`}
+          className="text-gray-500 hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          @{userUsername}
+        </Link>
+      </div>
+      <span className="text-gray-500 text-sm">
+        {formatDate(post.createdAt.toString())}
+      </span>
+    </div>
+  );
+
+  const renderMediaArray = () => {
+    if (
+      !parsedMedia ||
+      !Array.isArray(parsedMedia) ||
+      parsedMedia.length === 0 ||
+      post.images
+    ) {
+      return null;
+    }
+
+    return (
+      <div
+        className={`grid gap-2 mt-3 ${getImageGridClass(parsedMedia.length)}`}
+      >
+        {parsedMedia.map((mediaItem, index) => {
+          const mediaUrl =
+            typeof mediaItem === "string" ? mediaItem : mediaItem.url || "";
+
+          return (
+            <div
+              key={index}
+              className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
+            >
+              <img
+                src={mediaUrl}
+                alt={`Media ${index + 1}`}
+                className="w-full h-auto max-h-full rounded-xl aspect-square overflow-hidden object-contain"
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderSingleMedia = () => {
+    if (
+      !parsedMedia ||
+      Array.isArray(parsedMedia) ||
+      typeof parsedMedia !== "object" ||
+      !(parsedMedia.url || (parsedMedia as any).url)
+    ) {
+      return null;
+    }
+
+    const mediaUrl = parsedMedia.url || (parsedMedia as any).url;
+    const isGif =
+      parsedMedia.type === "gif" || (parsedMedia as any).type === "gif";
+    const mediaType = isGif ? "GIF" : "Post media";
+
+    console.log(parsedMedia);
+    return (
+      <div className="mt-3">
+        <div className="rounded-xl overflow-hidden bg-gray-800">
+          <img
+            src={mediaUrl}
+            alt={mediaType}
+            className={`w-full object-contain ${isGif ? "h-auto max-h-[500px]" : "h-[500px]"}`}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderThreadPosts = () => {
+    if (!post.isThread || !post.threadPosts) {
+      return null;
+    }
+
+    return (
+      <div className="mt-4 space-y-4">
+        {post.threadPosts.map((threadPost, index) => {
+          const hasValidThreadUser =
+            threadPost.user &&
+            typeof threadPost.user === "object" &&
+            "username" in threadPost.user;
+
+          const threadUserObj = hasValidThreadUser ? threadPost.user : null;
+          const threadUserName = threadUserObj
+            ? threadUserObj.displayName || threadUserObj.name || "Unknown User"
+            : "Unknown User";
+          const threadUserUsername = threadUserObj
+            ? threadUserObj.username
+            : "unknown";
+          const threadUserAvatar =
+            threadUserObj && threadUserObj.avatar
+              ? threadUserObj.avatar
+              : "https://api.randomx.ai/avatar/unknown";
+          const threadPostContent = threadPost.content || threadPost.text || "";
+
+          return (
+            <div key={index} className="relative">
+              {index < post.threadPosts!.length - 1 && (
+                <div className="absolute left-5 top-14 w-0.5 bg-gray-800 h-[calc(100%-1rem)]" />
+              )}
+
+              <div className="border-t border-gray-800 pt-4">
+                <div className="flex space-x-4">
+                  <div className="flex-shrink-0 flex flex-col">
+                    <Link
+                      href={`/${threadUserUsername}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden"
+                    >
+                      {threadUserAvatar && (
+                        <Image
+                          src={threadUserAvatar}
+                          alt={threadUserName}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </Link>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center justify-between">
+                      <div className="flex items-center gap-x-2">
+                        <Link
+                          href={`/${threadUserUsername}`}
+                          className="font-bold hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {threadUserName}
+                        </Link>
+                        <Link
+                          href={`/${threadUserUsername}`}
+                          className="text-gray-500 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{threadUserUsername}
+                        </Link>
+                      </div>
+                      <span className="text-gray-500 text-sm">
+                        {formatDate(threadPost.createdAt.toString())}
+                      </span>
+                    </div>
+                    <p className="mt-2">{parseContent(threadPostContent)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderPostActions = () => (
+    <div className="flex items-center justify-between mt-4 text-gray-500 -ml-2">
+      <button className="flex items-center space-x-2 hover:text-brand group p-2">
+        <div className="p-2 rounded-full group-hover:bg-brand/10">
+          <MessageCircle className="w-4 h-4" />
+        </div>
+        <span>{formatNumber(post.stats?.replies || post.replyCount || 0)}</span>
+      </button>
+      <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
+        <div className="p-2 rounded-full group-hover:bg-green-500/10">
+          <Repeat2 className="w-4 h-4" />
+        </div>
+        <span>
+          {formatNumber(post.stats?.reposts || post.repostCount || 0)}
+        </span>
+      </button>
+      <button
+        className={`flex items-center space-x-2 group p-2 ${isLiked ? "text-pink-500" : "hover:text-pink-500 text-gray-500"}`}
+        onClick={handleLike}
+        disabled={isLikeLoading}
+      >
+        <div
+          className={`p-2 rounded-full ${isLiked ? "bg-pink-500/10" : "group-hover:bg-pink-500/10"}`}
+        >
+          <Heart className={`w-4 h-4 ${isLiked ? "fill-pink-500" : ""}`} />
+        </div>
+        <span>{formatNumber(likeCount)}</span>
+      </button>
+      <div className="flex items-center gap-4 text-gray-400">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShare();
+          }}
+          className="hover:text-brand transition-colors"
+        >
+          <Share className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookmark(e);
+            }}
+            className={`hover:text-brand transition-colors ${isBookmarkLoading ? "opacity-50" : ""}`}
+            disabled={isBookmarkLoading}
+          >
+            {isBookmarked ? (
+              <BookMarked className="w-5 h-5 text-brand" />
+            ) : (
+              <Bookmark className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <article
@@ -215,338 +465,22 @@ export default function PostCard({ post }: PostCardProps) {
 
       <div className="relative z-10">
         <div className="flex space-x-4 pt-4">
-          <div className="flex-shrink-0 flex flex-col">
-            <Link
-              href={`/${userUsername}`}
-              onClick={(e) => e.stopPropagation()}
-              className="w-12 h-12 rounded-full bg-gray-800 relative overflow-hidden"
-            >
-              {userAvatar && (
-                <Image
-                  src={userAvatar}
-                  alt={userName}
-                  fill
-                  className="object-cover"
-                />
-              )}
-            </Link>
-            {post.isThread &&
-              post.threadPosts &&
-              post.threadPosts.length > 0 && (
-                <div className="w-0.5 bg-gray-800 mx-auto flex-1 my-2" />
-              )}
-          </div>
+          {renderUserAvatar()}
 
           <div className="flex-1">
-            <div className="flex flex-wrap items-center justify-between">
-              <div className="flex items-center gap-x-2">
-                <Link
-                  href={`/${userUsername}`}
-                  className="font-bold hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {userName}
-                </Link>
-                <Link
-                  href={`/${userUsername}`}
-                  className="text-gray-500 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @{userUsername}
-                </Link>
-              </div>
-              <span className="text-gray-500 text-sm">
-                {formatDate(post.createdAt.toString())}
-              </span>
-            </div>
+            {renderUserInfo()}
 
             <div className="whitespace-pre-wrap mt-1">
               {parseContent(postContent)}
             </div>
 
-            {/* Image Grid */}
-            {post.images && post.images.length > 0 && (
-              <div
-                className={`grid gap-2 mt-3 ${getImageGridClass(post.images.length)}`}
-              >
-                {post.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
-                  >
-                    <Image
-                      src={image}
-                      alt={`Post image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Media handling for database structure */}
-            {parsedMedia &&
-              Array.isArray(parsedMedia) &&
-              parsedMedia.length > 0 &&
-              !post.images && (
-                <div
-                  className={`grid gap-2 mt-3 ${getImageGridClass(parsedMedia.length)}`}
-                >
-                  {parsedMedia.map((mediaItem, index) => {
-                    // Handle string or object media items
-                    const mediaUrl =
-                      typeof mediaItem === "string"
-                        ? mediaItem
-                        : mediaItem.url || "";
-
-                    // Check if it's a GIF
-                    const isGif =
-                      typeof mediaItem === "object" && mediaItem.type === "gif";
-
-                    return (
-                      <div
-                        key={index}
-                        className="relative aspect-square rounded-xl overflow-hidden bg-gray-800"
-                      >
-                        {isGif ? (
-                          // For GIFs, use a regular img tag
-                          <img
-                            src={mediaUrl}
-                            alt={`GIF ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          // For other media types, use Next.js Image
-                          <Image
-                            src={mediaUrl}
-                            alt={`Post media ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-            {/* Single media item handling */}
-            {parsedMedia &&
-              !Array.isArray(parsedMedia) &&
-              typeof parsedMedia === "object" &&
-              (parsedMedia.url || (parsedMedia as any).url) && (
-                <div className="mt-3">
-                  <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-800">
-                    {/* Try to access media properties safely */}
-                    {(() => {
-                      // Ensure we have a proper media object with url
-                      const mediaObj = parsedMedia as any;
-                      const mediaUrl = mediaObj.url || "";
-                      const mediaType = mediaObj.type || "image";
-
-                      console.log("Rendering media:", { mediaUrl, mediaType });
-
-                      if (mediaType === "gif") {
-                        return (
-                          <img
-                            src={mediaUrl}
-                            alt="GIF"
-                            className="w-full h-full object-cover"
-                          />
-                        );
-                      } else {
-                        return (
-                          <Image
-                            src={mediaUrl}
-                            alt="Post media"
-                            fill
-                            className="object-cover"
-                          />
-                        );
-                      }
-                    })()}
-                  </div>
-                </div>
-              )}
-
-            {/* Thread Posts */}
-            {post.isThread && post.threadPosts && (
-              <div className="mt-4 space-y-4">
-                {post.threadPosts.map((threadPost, index) => {
-                  // Check if threadPost has valid user/author
-                  const hasValidThreadUser =
-                    threadPost.user &&
-                    typeof threadPost.user === "object" &&
-                    "username" in threadPost.user;
-
-                  const threadUserObj = hasValidThreadUser
-                    ? threadPost.user
-                    : null;
-                  const threadUserName = threadUserObj
-                    ? threadUserObj.displayName ||
-                      threadUserObj.name ||
-                      "Unknown User"
-                    : "Unknown User";
-                  const threadUserUsername = threadUserObj
-                    ? threadUserObj.username
-                    : "unknown";
-                  const threadUserAvatar =
-                    threadUserObj && threadUserObj.avatar
-                      ? threadUserObj.avatar
-                      : "https://api.randomx.ai/avatar/unknown";
-
-                  // Handle content vs text field
-                  const threadPostContent =
-                    threadPost.content || threadPost.text || "";
-
-                  return (
-                    <div key={index} className="relative">
-                      {index < post.threadPosts!.length - 1 && (
-                        <div className="absolute left-5 top-14 w-0.5 bg-gray-800 h-[calc(100%-1rem)]" />
-                      )}
-
-                      <div className="border-t border-gray-800 pt-4">
-                        <div className="flex space-x-4">
-                          <div className="flex-shrink-0 flex flex-col">
-                            <Link
-                              href={`/${threadUserUsername}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-10 h-10 rounded-full bg-gray-800 relative overflow-hidden"
-                            >
-                              {threadUserAvatar && (
-                                <Image
-                                  src={threadUserAvatar}
-                                  alt={threadUserName}
-                                  fill
-                                  className="object-cover"
-                                />
-                              )}
-                            </Link>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex flex-wrap items-center justify-between">
-                              <div className="flex items-center gap-x-2">
-                                <Link
-                                  href={`/${threadUserUsername}`}
-                                  className="font-bold hover:underline"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {threadUserName}
-                                </Link>
-                                <Link
-                                  href={`/${threadUserUsername}`}
-                                  className="text-gray-500 hover:underline"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  @{threadUserUsername}
-                                </Link>
-                              </div>
-                              <span className="text-gray-500 text-sm">
-                                {formatDate(threadPost.createdAt.toString())}
-                              </span>
-                            </div>
-                            <p className="mt-2">
-                              {parseContent(threadPostContent)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Post Stats */}
-            <div className="flex items-center justify-between mt-4 text-gray-500 -ml-2">
-              <button className="flex items-center space-x-2 hover:text-brand group p-2">
-                <div className="p-2 rounded-full group-hover:bg-brand/10">
-                  <MessageCircle className="w-4 h-4" />
-                </div>
-                <span>
-                  {formatNumber(post.stats?.replies || post.replyCount || 0)}
-                </span>
-              </button>
-              <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
-                <div className="p-2 rounded-full group-hover:bg-green-500/10">
-                  <Repeat2 className="w-4 h-4" />
-                </div>
-                <span>
-                  {formatNumber(post.stats?.reposts || post.repostCount || 0)}
-                </span>
-              </button>
-              <button
-                className={`flex items-center space-x-2 group p-2 ${isLiked ? "text-pink-500" : "hover:text-pink-500 text-gray-500"}`}
-                onClick={handleLike}
-                disabled={isLikeLoading}
-              >
-                <div
-                  className={`p-2 rounded-full ${isLiked ? "bg-pink-500/10" : "group-hover:bg-pink-500/10"}`}
-                >
-                  <Heart
-                    className={`w-4 h-4 ${isLiked ? "fill-pink-500" : ""}`}
-                  />
-                </div>
-                <span>{formatNumber(likeCount)}</span>
-              </button>
-              <div className="flex items-center gap-4 text-gray-400">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShare();
-                  }}
-                  className="hover:text-brand transition-colors"
-                >
-                  <Share className="w-5 h-5" />
-                </button>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleBookmark(e);
-                    }}
-                    className={`hover:text-brand transition-colors ${isBookmarkLoading ? "opacity-50" : ""}`}
-                    disabled={isBookmarkLoading}
-                  >
-                    {isBookmarked ? (
-                      <BookMarked className="w-5 h-5 text-brand" />
-                    ) : (
-                      <Bookmark className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
+            {renderMediaArray()}
+            {renderSingleMedia()}
+            {renderThreadPosts()}
+            {renderPostActions()}
           </div>
         </div>
       </div>
     </article>
   );
-}
-
-function getImageGridClass(imageCount: number): string {
-  switch (imageCount) {
-    case 1:
-      return "grid-cols-1";
-    case 2:
-      return "grid-cols-2";
-    case 3:
-      return "grid-cols-2";
-    case 4:
-      return "grid-cols-2";
-    default:
-      return "grid-cols-2";
-  }
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
-  }
-  return num.toString();
 }
