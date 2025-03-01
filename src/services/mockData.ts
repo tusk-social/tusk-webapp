@@ -194,26 +194,7 @@ export const EXPLORE_POSTS: Post[] = [
   },
 ];
 
-export const WHO_TO_FOLLOW = [
-  {
-    id: 1,
-    name: "User One",
-    username: "userone",
-    avatar: "https://api.randomx.ai/avatar/user1",
-  },
-  {
-    id: 2,
-    name: "User Two",
-    username: "usertwo",
-    avatar: "https://api.randomx.ai/avatar/user2",
-  },
-  {
-    id: 3,
-    name: "User Three",
-    username: "userthree",
-    avatar: "https://api.randomx.ai/avatar/user3",
-  },
-];
+export const WHO_TO_FOLLOW = [];
 
 export const TRENDING_TOPICS = [
   {
