@@ -98,8 +98,8 @@ export default function PostDetail({ post }: PostDetailProps) {
     : "Unknown User";
   const userUsername = userObj ? userObj.username : "unknown";
   const userAvatar =
-    userObj && userObj.avatar
-      ? userObj.avatar
+    userObj && userObj.avatarUrl
+      ? userObj.avatarUrl
       : "https://api.randomx.ai/avatar/unknown";
 
   // Handle content vs text field

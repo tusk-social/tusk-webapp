@@ -16,13 +16,13 @@ export interface Post {
     name?: string;
     displayName?: string;
     username: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   user?: {
     name?: string;
     displayName?: string;
     username: string;
-    avatar?: string;
+    avatarUrl?: string;
     id?: string;
   };
   createdAt: Date | string;

@@ -113,8 +113,8 @@ export default function PostCard({ post, onUnbookmark }: PostCardProps) {
     : "Unknown User";
   const userUsername = userObj ? userObj.username : "unknown";
   const userAvatar =
-    userObj && userObj.avatar
-      ? userObj.avatar
+    userObj && userObj.avatarUrl
+      ? userObj.avatarUrl
       : "https://api.randomx.ai/avatar/unknown";
 
   // Content data
@@ -319,14 +319,13 @@ export default function PostCard({ post, onUnbookmark }: PostCardProps) {
       parsedMedia.type === "gif" || (parsedMedia as any).type === "gif";
     const mediaType = isGif ? "GIF" : "Post media";
 
-    console.log(parsedMedia);
     return (
       <div className="mt-3">
         <div className="rounded-xl overflow-hidden bg-gray-800">
           <img
             src={mediaUrl}
             alt={mediaType}
-            className={`w-full object-contain ${isGif ? "h-auto max-h-[500px]" : "h-[500px]"}`}
+            className={`w-full object-contain h-auto max-h-[500px]`}
           />
         </div>
       </div>
@@ -354,8 +353,8 @@ export default function PostCard({ post, onUnbookmark }: PostCardProps) {
             ? threadUserObj.username
             : "unknown";
           const threadUserAvatar =
-            threadUserObj && threadUserObj.avatar
-              ? threadUserObj.avatar
+            threadUserObj && threadUserObj.avatarUrl
+              ? threadUserObj.avatarUrl
               : "https://api.randomx.ai/avatar/unknown";
           const threadPostContent = threadPost.content || threadPost.text || "";
 
