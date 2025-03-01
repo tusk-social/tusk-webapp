@@ -26,7 +26,10 @@ type EmojiPickerData = {
 };
 
 interface CommentInputProps {
-  onSubmit: (content: string, image: string | null) => Promise<void>;
+  onSubmit: (
+    content: string,
+    media: { type: string; url: string } | null,
+  ) => Promise<void>;
   isSubmitting: boolean;
 }
 
@@ -145,9 +148,14 @@ export default function CommentInput({
     if (!content.trim() && !image && !selectedGif) return;
     if (content.length > MAX_CHARS) return;
 
-    // Use the selected GIF if available, otherwise use the image
-    const mediaToSubmit = selectedGif || image;
-    await onSubmit(content, mediaToSubmit);
+    let mediaData = null;
+    if (selectedGif) {
+      mediaData = { type: "gif", url: selectedGif };
+    } else if (image) {
+      mediaData = { type: "image", url: image };
+    }
+
+    await onSubmit(content, mediaData);
     setContent("");
     setImage(null);
     setSelectedGif(null);
