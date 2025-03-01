@@ -71,7 +71,7 @@ function SearchContent() {
 
   return (
     <main className="flex-1 min-h-screen border-l border-r border-gray-800 max-w-[600px]">
-      <div className="sticky top-0 z-10 backdrop-blur-md bg-black/70 border-b border-gray-800">
+      <div className="sticky top-0 z-[100] backdrop-blur-xl bg-black/80 border-b border-gray-800">
         <div className="flex items-center gap-6 p-4">
           <Link href="/home" className="rounded-full p-2 hover:bg-gray-900">
             <ArrowLeft className="w-5 h-5" />
@@ -237,7 +237,7 @@ function SearchContent() {
 function SearchLoading() {
   return (
     <main className="flex-1 min-h-screen border-l border-r border-gray-800 max-w-[600px]">
-      <div className="sticky top-0 z-10 backdrop-blur-md bg-black/70 border-b border-gray-800">
+      <div className="sticky top-0 z-[100] backdrop-blur-xl bg-black/80 border-b border-gray-800">
         <div className="flex items-center gap-6 p-4">
           <Link href="/home" className="rounded-full p-2 hover:bg-gray-900">
             <ArrowLeft className="w-5 h-5" />
