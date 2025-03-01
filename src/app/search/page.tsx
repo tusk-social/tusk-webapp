@@ -129,7 +129,7 @@ function SearchContent() {
                   {results.users.map((user) => (
                     <Link
                       key={user.id}
-                      href={`/profile/${user.username}`}
+                      href={`/${user.username}`}
                       className="flex items-center px-4 py-3 hover:bg-gray-900 transition border-b border-gray-800"
                     >
                       <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
