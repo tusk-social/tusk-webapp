@@ -137,11 +137,14 @@ export default function CreatePost({
   // Handle mention suggestions
   useEffect(() => {
     if (mentionQuery) {
-      const filteredUsers = USERS_LIST.filter(
-        (user) =>
-          user.username.toLowerCase().includes(mentionQuery.toLowerCase()) ||
-          user.name.toLowerCase().includes(mentionQuery.toLowerCase()),
-      ).slice(0, 5);
+      const filteredUsers = [] as MentionUser[];
+      filteredUsers
+        .filter(
+          (user) =>
+            user.username.toLowerCase().includes(mentionQuery.toLowerCase()) ||
+            user.name.toLowerCase().includes(mentionQuery.toLowerCase()),
+        )
+        .slice(0, 5);
 
       setMentionSuggestions(filteredUsers);
       setSelectedMentionIndex(0); // Reset selection to first item
