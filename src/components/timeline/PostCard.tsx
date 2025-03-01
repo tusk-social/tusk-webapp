@@ -26,10 +26,12 @@ function parseContent(content: string | undefined | null) {
   return content.split(/(\s+)/).map((part, index) => {
     if (part.startsWith("#")) {
       const tag = part.slice(1);
+      // let's remove any non-alphanumeric characters from the end of the hashtag
+      const hashtag = tag.replace(/[^a-zA-Z0-9]+$/, "");
       return (
         <Link
           key={index}
-          href={`/hashtag/${encodeURIComponent(tag)}`}
+          href={`/hashtag/${encodeURIComponent(hashtag)}`}
           className="text-brand hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
@@ -402,14 +404,14 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
         <span>{formatNumber(post.stats?.replies || post.replyCount || 0)}</span>
       </button>
-      <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
+      {/* <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
         <div className="p-2 rounded-full group-hover:bg-green-500/10">
           <Repeat2 className="w-4 h-4" />
         </div>
         <span>
           {formatNumber(post.stats?.reposts || post.repostCount || 0)}
         </span>
-      </button>
+      </button> */}
       <button
         className={`flex items-center space-x-2 group p-2 ${isLiked ? "text-pink-500" : "hover:text-pink-500 text-gray-500"}`}
         onClick={handleLike}

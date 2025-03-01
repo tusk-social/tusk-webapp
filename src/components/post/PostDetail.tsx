@@ -27,10 +27,13 @@ function parseContent(content: string | undefined | null) {
 
   return words.map((word, index) => {
     if (word.startsWith("#")) {
+      // let's remove any non-alphanumeric characters from the end of the hashtag
+      const hashtag = word.replace(/[^a-zA-Z0-9]+$/, "");
+
       return (
         <Link
           key={index}
-          href={`/hashtag/${encodeURIComponent(word.slice(1))}`}
+          href={`/hashtag/${encodeURIComponent(hashtag.slice(1))}`}
           className="text-brand hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
@@ -336,26 +339,6 @@ export default function PostDetail({ post }: PostDetailProps) {
         {/* Post Meta */}
         <div className="px-4 py-3 border-y border-gray-800 mt-4 text-gray-500">
           <time>{formatDate(post.createdAt.toString())}</time>
-          <div className="flex gap-4 mt-2">
-            <div>
-              <span className="font-bold text-white">
-                {formatNumber(post.stats?.views || post.viewCount || 0)}
-              </span>
-              <span className="ml-1">views</span>
-            </div>
-            <div>
-              <span className="font-bold text-white">
-                {formatNumber(post.stats?.reposts || post.repostCount || 0)}
-              </span>
-              <span className="ml-1">reposts</span>
-            </div>
-            <div>
-              <span className="font-bold text-white">
-                {formatNumber(post.stats?.likes || likeCount || 0)}
-              </span>
-              <span className="ml-1">likes</span>
-            </div>
-          </div>
         </div>
 
         {/* Action Buttons */}
@@ -368,14 +351,14 @@ export default function PostDetail({ post }: PostDetailProps) {
               {formatNumber(post.stats?.replies || post.replyCount || 0)}
             </span>
           </button>
-          <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
+          {/* <button className="flex items-center space-x-2 hover:text-green-500 group p-2">
             <div className="p-2 rounded-full group-hover:bg-green-500/10">
               <Repeat2 className="w-5 h-5" />
             </div>
             <span>
               {formatNumber(post.stats?.reposts || post.repostCount || 0)}
             </span>
-          </button>
+          </button> */}
           <button
             className={`flex items-center space-x-2 group p-2 ${isLiked ? "text-pink-500" : "hover:text-pink-500 text-gray-500"}`}
             onClick={handleLike}
