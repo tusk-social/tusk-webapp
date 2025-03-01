@@ -55,6 +55,7 @@ export type TimelinePostsParams = {
   page?: number;
   limit?: number;
   type?: "all" | "replies" | "media";
+  excludeReplies?: boolean;
 };
 
 export type UserPostsParams = {
@@ -301,6 +302,7 @@ export const postService = {
     page = 1,
     limit = 20,
     type = "all",
+    excludeReplies = false,
   }: TimelinePostsParams): Promise<{
     posts: PostWithRelations[];
     total: number;
@@ -315,6 +317,11 @@ export const postService = {
       where.parentPostId = { not: null };
     } else if (type === "media") {
       where.media = { not: Prisma.JsonNull };
+    }
+
+    // Exclude replies if requested
+    if (excludeReplies) {
+      where.parentPostId = null;
     }
 
     // If userId is provided, get posts from followed users and the user's own posts

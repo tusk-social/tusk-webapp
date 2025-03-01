@@ -5,7 +5,6 @@ import AppLayout from "@/components/layout/AppLayout";
 import PostList from "@/components/timeline/PostList";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { SAMPLE_POSTS } from "@/services/mockData";
 
 interface HashtagPageProps {
   params: Promise<{

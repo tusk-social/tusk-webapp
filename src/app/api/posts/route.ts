@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const { text, media, parentPostId, repostPostId } = await request.json();
-    
+
     if (!text && !repostPostId) {
       return NextResponse.json(
         { error: "Post must contain text or be a repost" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating post:", error);
     return NextResponse.json(
       { error: "Failed to create post" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,8 +42,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
-    const type = (searchParams.get("type") || "all") as "all" | "replies" | "media";
-    
+    const type = (searchParams.get("type") || "all") as
+      | "all"
+      | "replies"
+      | "media";
+    const excludeReplies = searchParams.get("exclude_replies") === "true";
+
     const user = await getCurrentUser();
     const userId = user?.id;
 
@@ -52,6 +56,7 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       type,
+      excludeReplies,
     });
 
     return NextResponse.json({
@@ -67,7 +72,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching posts:", error);
     return NextResponse.json(
       { error: "Failed to fetch posts" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
