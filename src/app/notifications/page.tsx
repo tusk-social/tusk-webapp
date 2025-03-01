@@ -9,13 +9,7 @@ import { SAMPLE_NOTIFICATIONS } from "@/services/mockData";
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<"All" | "Mentions">("All");
 
-  const filteredNotifications =
-    activeTab === "All"
-      ? SAMPLE_NOTIFICATIONS
-      : SAMPLE_NOTIFICATIONS.filter(
-          (notification) => notification.type === "mention",
-        );
-
+  const filteredNotifications = SAMPLE_NOTIFICATIONS;
   return (
     <AppLayout>
       <main className="flex-1 min-h-screen border-l border-r border-gray-800 max-w-[600px]">
