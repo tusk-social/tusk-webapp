@@ -7,7 +7,7 @@
 Tusk is a decentralized social media platform - built on modern web technologies and blockchain infrastructure for Mammothon challenge. The platform provides a Twitter-like experience with enhanced privacy, data ownership, and censorship resistance through its integration with decentralized technologies.
 
 > This is a project description. For installation instructions, please
-> refer to **SETUP.md**.
+> refer to **[SETUP.md](https://github.com/tusk-social/tusk-webapp/blob/main/SETUP.md)**.
 
 ## Core Technology Stack
 
