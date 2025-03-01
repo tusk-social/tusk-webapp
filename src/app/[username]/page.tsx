@@ -8,15 +8,27 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/server-auth";
 import EditProfileButton from "@/components/profile/EditProfileButton";
 import FollowButton from "@/components/profile/FollowButton";
+import { postService } from "@/services/postService";
+import { Suspense } from "react";
+import { Post } from "@/types/post";
+import { cn } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{
     username: string;
   }>;
+  searchParams: {
+    tab?: string;
+  };
 }
 
-export default async function UserProfilePage({ params }: PageProps) {
-  const username = (await params).username;
+export default async function UserProfilePage({
+  params,
+  searchParams,
+}: PageProps) {
+  const { username } = await params;
+  const { tab } = searchParams;
+  const activeTab = tab === "engaged" ? "engaged" : "posts";
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -33,6 +45,34 @@ export default async function UserProfilePage({ params }: PageProps) {
   // Format the joined date
   const joinedDate = formatDate(user.createdAt);
 
+  // Fetch user posts and replies
+  const { posts: userPosts } = await postService.getUserPosts({
+    username,
+    type: "all",
+    limit: 50,
+  });
+
+  // Filter posts (user's own posts without a parent)
+  const posts = userPosts.filter((post) => post.parentPostId === null);
+
+  // Get replies (posts with a parent)
+  const replies = userPosts.filter((post) => post.parentPostId !== null);
+
+  // Extract unique parent posts from replies (engaged posts)
+  const engagedPosts: Post[] = [];
+  const seenParentIds = new Set<string>();
+
+  for (const reply of replies) {
+    if (
+      reply.parentPost &&
+      !seenParentIds.has(reply.parentPost.id) &&
+      reply.parentPost.user?.id !== user.id // Exclude user's own posts
+    ) {
+      seenParentIds.add(reply.parentPost.id);
+      engagedPosts.push(reply.parentPost as Post);
+    }
+  }
+
   return (
     <AppLayout>
       <main className="flex-1 min-h-screen border-l border-r border-gray-800 max-w-[600px]">
@@ -47,7 +87,7 @@ export default async function UserProfilePage({ params }: PageProps) {
             </Link>
             <div>
               <h1 className="text-xl font-bold">{user.displayName}</h1>
-              <p className="text-sm text-gray-500">1,234 posts</p>
+              <p className="text-sm text-gray-500">{userPosts.length} posts</p>
             </div>
           </div>
         </div>
@@ -142,23 +182,36 @@ export default async function UserProfilePage({ params }: PageProps) {
         {/* Tabs */}
         <div className="border-b border-gray-800">
           <nav className="flex">
-            <button className="flex-1 px-4 py-4 text-brand font-bold border-b-2 border-brand hover:bg-white/5">
+            <Link
+              href={`/${username}`}
+              className={cn(
+                "flex-1 px-4 py-4 text-center hover:bg-white/5",
+                activeTab === "posts"
+                  ? "text-brand font-bold border-b-2 border-brand"
+                  : "text-gray-500 hover:text-white",
+              )}
+            >
               Posts
-            </button>
-            <button className="flex-1 px-4 py-4 text-gray-500 hover:bg-white/5 hover:text-white">
-              Replies
-            </button>
-            <button className="flex-1 px-4 py-4 text-gray-500 hover:bg-white/5 hover:text-white">
-              Media
-            </button>
-            <button className="flex-1 px-4 py-4 text-gray-500 hover:bg-white/5 hover:text-white">
-              Likes
-            </button>
+            </Link>
+            <Link
+              href={`/${username}?tab=engaged`}
+              className={cn(
+                "flex-1 px-4 py-4 text-center hover:bg-white/5",
+                activeTab === "engaged"
+                  ? "text-brand font-bold border-b-2 border-brand"
+                  : "text-gray-500 hover:text-white",
+              )}
+            >
+              Engaged Posts
+            </Link>
           </nav>
         </div>
 
-        {/* Posts */}
-        <PostList />
+        <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+          <PostList
+            posts={(activeTab === "posts" ? posts : engagedPosts) as Post[]}
+          />
+        </Suspense>
       </main>
     </AppLayout>
   );
