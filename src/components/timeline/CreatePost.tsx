@@ -18,6 +18,7 @@ import { USERS_LIST } from "@/services/mockData";
 import { useMemeModal } from "@/context/MemeModalContext";
 import { toast } from "react-hot-toast";
 import Tooltip from "@/components/ui/Tooltip";
+import { Post } from "@/types/post";
 
 const MAX_CHARS = 280;
 
@@ -26,27 +27,10 @@ type EmojiPickerData = {
   native: string;
 };
 
-interface Post {
-  id: string;
-  type: "text" | "image";
-  content: string;
-  author: {
-    name: string;
-    username: string;
-    avatar: string;
-  };
-  createdAt: string;
-  stats: {
-    replies: number;
-    reposts: number;
-    likes: number;
-    views: number;
-  };
-  images?: string[];
-}
-
 interface CreatePostProps {
   onPost: (post: Post) => void;
+  parentPostId?: string;
+  repostPostId?: string;
 }
 
 interface MentionUser {
@@ -57,7 +41,7 @@ interface MentionUser {
   bio: string;
 }
 
-export default function CreatePost({ onPost }: CreatePostProps) {
+export default function CreatePost({ onPost, parentPostId, repostPostId }: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -83,8 +67,10 @@ export default function CreatePost({ onPost }: CreatePostProps) {
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const mentionSuggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Add new state variables for post enhancement
+  // Add new state variables for post enhancement and API interaction
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -217,33 +203,61 @@ export default function CreatePost({ onPost }: CreatePostProps) {
     setShowGifPicker(false);
   };
 
-  const handlePost = () => {
-    if (!content.trim() && !selectedGif && !image) return;
+  const handlePost = async () => {
+    if ((!content.trim() && !selectedGif && !image) || content.length > MAX_CHARS) {
+      return;
+    }
 
-    const newPost: Post = {
-      id: Math.random().toString(36).substring(7),
-      type: image || selectedGif ? "image" : "text",
-      content: content.trim(),
-      author: {
-        name: "Current User",
-        username: "currentuser",
-        avatar: "https://api.randomx.ai/avatar/currentuser",
-      },
-      createdAt: "now",
-      stats: {
-        replies: 0,
-        reposts: 0,
-        likes: 0,
-        views: 0,
-      },
-      ...(image && { images: [image] }),
-      ...(selectedGif && { images: [selectedGif] }),
-    };
+    try {
+      setIsSubmitting(true);
+      setError(null);
 
-    onPost(newPost);
-    setContent("");
-    setImage(null);
-    setSelectedGif(null);
+      // Prepare media data if present
+      let mediaData = null;
+      if (image) {
+        mediaData = { type: "image", url: image };
+      } else if (selectedGif) {
+        mediaData = { type: "gif", url: selectedGif };
+      }
+
+      // Call the API to create the post
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: content.trim(),
+          media: mediaData,
+          parentPostId,
+          repostPostId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create post");
+      }
+
+      const newPost = await response.json();
+      
+      // Call the onPost callback with the new post
+      onPost(newPost);
+      
+      // Reset form state
+      setContent("");
+      setImage(null);
+      setSelectedGif(null);
+      
+      // Show success message
+      toast.success("Post created successfully!");
+    } catch (err: any) {
+      console.error("Error creating post:", err);
+      setError(err.message || "Failed to create post");
+      toast.error(err.message || "Failed to create post");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -293,7 +307,11 @@ export default function CreatePost({ onPost }: CreatePostProps) {
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
-    setContent(newContent);
+    
+    // Validate content length
+    if (newContent.length <= MAX_CHARS) {
+      setContent(newContent);
+    }
 
     // Get cursor position
     const cursorPos = e.target.selectionStart || 0;
@@ -443,8 +461,9 @@ export default function CreatePost({ onPost }: CreatePostProps) {
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
               className={`w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder-gray-600 min-h-[72px] ${showMentionSuggestions ? "mention-active" : ""}`}
-              placeholder="What's happening?"
+              placeholder={parentPostId ? "Write your reply..." : repostPostId ? "Add a comment..." : "What's happening?"}
               maxRows={8}
+              disabled={isSubmitting}
             />
 
             {image && (
@@ -460,6 +479,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                 <button
                   onClick={() => setImage(null)}
                   className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 transition"
+                  disabled={isSubmitting}
                 >
                   ×
                 </button>
@@ -479,16 +499,21 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                 <button
                   onClick={() => setSelectedGif(null)}
                   className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 transition"
+                  disabled={isSubmitting}
                 >
                   ×
                 </button>
               </div>
             )}
 
+            {error && (
+              <div className="text-red-500 text-sm">{error}</div>
+            )}
+
             <div className="flex items-center justify-between pt-4">
               <div className="flex items-center space-x-2">
                 <Tooltip text="Upload image">
-                  <label className={iconButtonClass + " cursor-pointer"}>
+                  <label className={`${iconButtonClass} ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                     <ImageIcon className="w-5 h-5 text-brand" />
                     <input
                       type="file"
@@ -496,6 +521,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                       className="hidden"
                       onChange={handleImageUpload}
                       ref={fileInputRef}
+                      disabled={isSubmitting}
                     />
                   </label>
                 </Tooltip>
@@ -505,6 +531,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                     ref={emojiButtonRef}
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     className={iconButtonClass}
+                    disabled={isSubmitting}
                   >
                     <SmileIcon className="w-5 h-5 text-brand" />
                   </button>
@@ -514,6 +541,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                   <button
                     onClick={() => setShowGifPicker(!showGifPicker)}
                     className={iconButtonClass}
+                    disabled={isSubmitting}
                   >
                     <ImagePlayIcon className="w-5 h-5 text-brand" />
                   </button>
@@ -523,6 +551,7 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                   <button
                     onClick={() => openMemeModal(handleMemeGenerated)}
                     className={iconButtonClass}
+                    disabled={isSubmitting}
                   >
                     <Laugh className="w-5 h-5 text-brand" />
                   </button>
@@ -535,9 +564,9 @@ export default function CreatePost({ onPost }: CreatePostProps) {
                       console.log("Enhance button clicked");
                       enhancePost();
                     }}
-                    disabled={isEnhancing || !content.trim()}
+                    disabled={isEnhancing || !content.trim() || isSubmitting}
                     className={`${iconButtonClass} ${
-                      isEnhancing || !content.trim()
+                      isEnhancing || !content.trim() || isSubmitting
                         ? "text-gray-400"
                         : "text-brand hover:text-brand"
                     } relative`}
@@ -565,12 +594,20 @@ export default function CreatePost({ onPost }: CreatePostProps) {
               <button
                 onClick={handlePost}
                 disabled={
+                  isSubmitting ||
                   (!content.trim() && !selectedGif && !image) ||
                   content.length > MAX_CHARS
                 }
-                className="bg-brand px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand/90 transition"
+                className="bg-brand px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand/90 transition flex items-center"
               >
-                Post
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  "Post"
+                )}
               </button>
             </div>
           </div>

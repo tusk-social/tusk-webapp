@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import type { User } from "@/lib/types";
 import { X, Camera, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/context/UserContext";
 import toast from "react-hot-toast";
 
 // Validation utilities
@@ -213,7 +213,7 @@ export default function EditProfileModal({
         formData.append("banner", bannerFile);
       }
 
-      const response = await fetch(`/api/users/${user.id}`, {
+      const response = await fetch(`/api/users/`, {
         method: "PATCH",
         body: formData,
       });

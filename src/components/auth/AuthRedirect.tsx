@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/context/UserContext";
 
 export default function AuthRedirect() {
   const { user, isLoading, error } = useUser();

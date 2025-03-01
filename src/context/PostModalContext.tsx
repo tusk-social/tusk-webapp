@@ -4,6 +4,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import Modal from "@/components/ui/Modal";
 import CreatePost from "@/components/timeline/CreatePost";
 import { Post } from "@/types/post";
+import { toast } from "react-hot-toast";
 
 interface PostModalContextType {
   openPostModal: () => void;
@@ -22,13 +23,16 @@ export function PostModalProvider({ children }: { children: ReactNode }) {
   const closePostModal = () => setIsPostModalOpen(false);
 
   const handlePost = (post: Post) => {
-    // Here you would typically call an API to create the post
-    console.log("New post created:", post);
-
-    // For now, we'll just close the modal
+    // Close the modal
     closePostModal();
 
-    // You could also add a toast notification here to confirm the post was created
+    // Show success notification
+    toast.success("Post created successfully!");
+
+    // Refresh the page to show the new post
+    // In a production app, you might want to use a more sophisticated approach
+    // like using SWR or React Query to revalidate data
+    window.location.reload();
   };
 
   return (
@@ -52,10 +56,10 @@ export function PostModalProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function usePostModal() {
+export const usePostModal = () => {
   const context = useContext(PostModalContext);
   if (context === undefined) {
     throw new Error("usePostModal must be used within a PostModalProvider");
   }
   return context;
-}
+};

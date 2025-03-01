@@ -3,10 +3,11 @@
 import { Post } from "@/types/post";
 import { useState, useEffect, useCallback } from "react";
 import PostCard from "../timeline/PostCard";
-import { createComment, fetchComments } from "@/services/comments";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import CommentInput from "./CommentInput";
+import { useUser } from "@/context/UserContext";
+import { PostType, MediaType } from "@/types/post";
 
 interface CommentListProps {
   postId: string;
@@ -18,6 +19,7 @@ export default function CommentList({
   initialComments = [],
 }: CommentListProps) {
   const router = useRouter();
+  const { user } = useUser();
   const [comments, setComments] = useState<Post[]>(initialComments);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -27,25 +29,34 @@ export default function CommentList({
   const loadComments = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetchComments(postId, page);
+      const response = await fetch(
+        `/api/posts/${postId}/reply?page=${page}&limit=10`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load replies");
+      }
+
+      const data = await response.json();
 
       setComments((prev) =>
-        page === 1 ? response.comments : [...prev, ...response.comments],
+        page === 1 ? data.replies : [...prev, ...data.replies],
       );
-      setHasMore(response.hasMore);
+      setHasMore(data.hasMore);
     } catch (error) {
-      toast.error("Failed to load comments");
-      console.error("Error loading comments:", error);
+      toast.error("Failed to load replies");
+      console.error("Error loading replies:", error);
     } finally {
       setIsLoading(false);
     }
   }, [postId, page]);
 
   useEffect(() => {
-    if (page > 1) {
+    // Only load comments if we don't have initial comments or if we're loading more
+    if (initialComments.length === 0 || page > 1) {
       loadComments();
     }
-  }, [page, loadComments]);
+  }, [page, loadComments, initialComments.length]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
@@ -53,24 +64,92 @@ export default function CommentList({
     }
   };
 
-  const handleSubmit = async (content: string) => {
+  const handleSubmit = async (
+    content: string,
+    media: { type: string; url: string } | null,
+  ) => {
+    if (!content.trim() && !media) return;
+
     try {
       setIsSubmitting(true);
-      const newComment = await createComment(postId, content);
+
+      // Map media type to PostType
+      const postType: PostType = media
+        ? media.type === "gif"
+          ? "image"
+          : (media.type as PostType)
+        : "text";
+
+      // Create a temporary optimistic comment
+      const tempComment: Post = {
+        id: "temp-" + Date.now(),
+        type: postType,
+        content: content,
+        text: content,
+        createdAt: new Date(),
+        user: {
+          username: user?.username || "",
+          displayName: user?.displayName || "",
+        },
+        stats: {
+          replies: 0,
+          reposts: 0,
+          likes: 0,
+          views: 0,
+        },
+        ...(media && {
+          media: {
+            type: media.type as MediaType,
+            url: media.url,
+          },
+        }),
+      };
 
       // Optimistically update the UI
-      setComments((prev) => [newComment, ...prev]);
+      setComments((prev) => [tempComment, ...prev]);
+
+      // Send the request to the API
+      const response = await fetch(`/api/posts/${postId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: content,
+          ...(media && {
+            media: {
+              type: media.type as MediaType,
+              url: media.url,
+            },
+          }),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to post reply");
+      }
+
+      const newReply = await response.json();
+
+      // Replace the temporary comment with the real one
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === tempComment.id ? newReply : comment,
+        ),
+      );
+
+      toast.success("Reply posted successfully!");
 
       // Refresh the page to get the latest data
       router.refresh();
-
-      toast.success("Comment posted successfully!");
     } catch (error) {
-      toast.error("Failed to post comment");
-      console.error("Error posting comment:", error);
+      toast.error("Failed to post reply");
+      console.error("Error posting reply:", error);
 
       // Remove the optimistically added comment
-      setComments((prev) => prev.filter((comment) => comment.id !== "temp"));
+      setComments((prev) =>
+        prev.filter((comment) => !comment.id.toString().startsWith("temp")),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -90,15 +169,22 @@ export default function CommentList({
         ))}
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="p-4 text-center">
+          <div className="inline-block animate-spin mr-2">⭮</div>
+          <span>Loading replies...</span>
+        </div>
+      )}
+
       {/* Load More */}
-      {comments.length > 0 && hasMore && (
+      {comments.length > 0 && hasMore && !isLoading && (
         <div className="p-4 text-center">
           <button
             onClick={handleLoadMore}
-            disabled={isLoading}
-            className="text-brand hover:text-brand/90 font-medium disabled:opacity-50"
+            className="text-brand hover:text-brand/90 font-medium"
           >
-            {isLoading ? "Loading..." : "Show more replies"}
+            Show more replies
           </button>
         </div>
       )}
@@ -106,7 +192,7 @@ export default function CommentList({
       {/* Empty State */}
       {comments.length === 0 && !isLoading && (
         <div className="p-8 text-center text-gray-500">
-          <p>No comments yet. Be the first to reply!</p>
+          <p>No replies yet. Be the first to reply!</p>
         </div>
       )}
     </div>

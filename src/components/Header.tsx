@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/context/UserContext";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, Home, Search, User } from "lucide-react";

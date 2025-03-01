@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { memo, useMemo, useState, useRef, useEffect } from "react";
 import { usePostModal } from "@/context/PostModalContext";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/context/UserContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
 

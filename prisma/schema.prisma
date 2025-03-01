@@ -22,6 +22,120 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deactivatedAt   DateTime?
+  posts           Post[]
+  following       Follow[]  @relation("Following")
+  followers       Follow[]  @relation("FollowedBy")
+  likes           Like[]
+  bookmarks       Bookmark[]
+  mentions        Mention[]
 
   @@map("users") 
+}
+
+model Post {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  text          String
+  media         Json?
+  parentPostId  String?   @map("parent_post_id")
+  repostPostId  String?   @map("repost_post_id")
+  likeCount     Int       @default(0)
+  bookmarkCount Int       @default(0)
+  replyCount    Int       @default(0)
+  repostCount   Int       @default(0)
+  viewCount     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  user         User       @relation(fields: [userId], references: [id])
+  parentPost   Post?      @relation("ParentPost", fields: [parentPostId], references: [id])
+  repostPost   Post?      @relation("RepostPost", fields: [repostPostId], references: [id])
+  replies      Post[]     @relation("ParentPost")
+  reposts      Post[]     @relation("RepostPost")
+  likes        Like[]
+  bookmarks    Bookmark[]
+  mentions     Mention[]
+  postHashtags PostHashtag[]
+
+  @@index([userId])
+  @@index([parentPostId])
+  @@index([repostPostId])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([userId, createdAt])
+  @@index([parentPostId, createdAt])
+  @@map("posts")
+}
+
+model Follow {
+  followerId String   @map("follower_id")
+  followedId String   @map("followed_id")
+  createdAt  DateTime @default(now())
+
+  follower User @relation("Following", fields: [followerId], references: [id])
+  followed User @relation("FollowedBy", fields: [followedId], references: [id])
+
+  @@id([followerId, followedId])
+  @@map("follows")
+}
+
+model Like {
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("likes")
+}
+
+model Bookmark {
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("bookmarks")
+}
+
+model Mention {
+  postId          String   @map("post_id")
+  mentionedUserId String   @map("mentioned_user_id")
+  createdAt       DateTime @default(now())
+
+  post          Post @relation(fields: [postId], references: [id])
+  mentionedUser User @relation(fields: [mentionedUserId], references: [id])
+
+  @@id([postId, mentionedUserId])
+  @@map("mentions")
+}
+
+model Hashtag {
+  id            String        @id @default(uuid())
+  hashtag       String        @unique
+  trendingScore Float         @default(0)
+  lastTrended   DateTime?
+  posts         PostHashtag[]
+
+  @@map("hashtags")
+}
+
+model PostHashtag {
+  postId    String   @map("post_id")
+  hashtagId String   @map("hashtag_id")
+
+  post    Post    @relation(fields: [postId], references: [id])
+  hashtag Hashtag @relation(fields: [hashtagId], references: [id])
+
+  @@id([postId, hashtagId])
+  @@map("post_hashtags")
 }

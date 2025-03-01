@@ -16,9 +16,6 @@ interface HashtagPageProps {
 export default function HashtagPage({ params }: HashtagPageProps) {
   const resolvedParams = use(params);
   const tag = decodeURIComponent(resolvedParams.tag);
-  const filteredPosts = SAMPLE_POSTS.filter((post) =>
-    post.content.toLowerCase().includes(`#${tag.toLowerCase()}`),
-  );
 
   return (
     <AppLayout>
@@ -34,25 +31,16 @@ export default function HashtagPage({ params }: HashtagPageProps) {
             </Link>
             <div>
               <h1 className="text-xl font-bold">#{tag}</h1>
-              <p className="text-sm text-gray-500">
-                {filteredPosts.length}{" "}
-                {filteredPosts.length === 1 ? "post" : "posts"}
-              </p>
             </div>
           </div>
         </div>
 
-        {/* Posts */}
-        {filteredPosts.length > 0 ? (
-          <PostList posts={filteredPosts} />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-            <h2 className="text-2xl font-bold mb-2">No posts yet</h2>
-            <p className="text-gray-500 max-w-sm">
-              Be the first to post with #{tag}
-            </p>
-          </div>
-        )}
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+          <h2 className="text-2xl font-bold mb-2">No posts yet</h2>
+          <p className="text-gray-500 max-w-sm">
+            Be the first to post with #{tag}
+          </p>
+        </div>
       </main>
     </AppLayout>
   );
