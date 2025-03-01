@@ -1,5 +1,11 @@
 import AppLayout from "@/components/layout/AppLayout";
 import BookmarksList from "@/components/bookmarks/BookmarksList";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Bookmarks | Tusk",
+  description: "View your saved posts on Tusk",
+};
 
 export default function BookmarksPage() {
   return (
@@ -12,4 +18,4 @@ export default function BookmarksPage() {
       </main>
     </AppLayout>
   );
-} 
+}
