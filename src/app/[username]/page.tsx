@@ -17,9 +17,9 @@ interface PageProps {
   params: Promise<{
     username: string;
   }>;
-  searchParams: {
+  searchParams: Promise<{
     tab?: string;
-  };
+  }>;
 }
 
 export default async function UserProfilePage({
@@ -27,7 +27,7 @@ export default async function UserProfilePage({
   searchParams,
 }: PageProps) {
   const { username } = await params;
-  const { tab } = searchParams;
+  const { tab } = await searchParams;
   const activeTab = tab === "engaged" ? "engaged" : "posts";
 
   const user = await prisma.user.findUnique({
