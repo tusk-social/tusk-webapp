@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import {
   ImageIcon,
   SmileIcon,
@@ -33,6 +33,14 @@ interface CommentInputProps {
   isSubmitting: boolean;
 }
 
+interface MentionUser {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string;
+  bio: string;
+}
+
 export default function CommentInput({
   onSubmit,
   isSubmitting,
@@ -51,6 +59,16 @@ export default function CommentInput({
   const gifSearchInputRef = useRef<HTMLInputElement>(null);
   const { openMemeModal } = useMemeModal();
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionSuggestions, setMentionSuggestions] = useState<MentionUser[]>(
+    [],
+  );
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const mentionSuggestionsRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -215,9 +233,31 @@ export default function CommentInput({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       handleSubmitComment();
+      return;
+    }
+
+    // Handle mention suggestions navigation
+    if (showMentionSuggestions && mentionSuggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedMentionIndex((prev) =>
+          prev < mentionSuggestions.length - 1 ? prev + 1 : 0,
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedMentionIndex((prev) =>
+          prev > 0 ? prev - 1 : mentionSuggestions.length - 1,
+        );
+      } else if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        handleMentionSelect(mentionSuggestions[selectedMentionIndex].username);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setShowMentionSuggestions(false);
+      }
     }
   };
 
@@ -273,6 +313,126 @@ export default function CommentInput({
   const iconButtonClass =
     "text-brand hover:text-brand/90 transition p-2 hover:bg-white/5 rounded-full";
 
+  // Add this effect for fetching mention suggestions
+  useEffect(() => {
+    if (mentionQuery && mentionQuery.length >= 2) {
+      const fetchMentionSuggestions = async () => {
+        try {
+          const response = await fetch(
+            `/api/users/mentions?q=${encodeURIComponent(mentionQuery)}&limit=5`,
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch mention suggestions");
+          }
+
+          const data = await response.json();
+          setMentionSuggestions(data.users || []);
+          setSelectedMentionIndex(0); // Reset selection to first item
+        } catch (error) {
+          console.error("Error fetching mention suggestions:", error);
+          setMentionSuggestions([]);
+        }
+      };
+
+      fetchMentionSuggestions();
+    } else {
+      setMentionSuggestions([]);
+    }
+  }, [mentionQuery]);
+
+  // Add this effect for positioning the mention suggestions
+  useEffect(() => {
+    if (showMentionSuggestions && textareaRef.current) {
+      const textarea = textareaRef.current;
+      const textareaRect = textarea.getBoundingClientRect();
+
+      setMentionPosition({
+        top: textareaRect.bottom + window.scrollY + 5,
+        left: textareaRect.left + 20,
+      });
+    }
+  }, [showMentionSuggestions, mentionQuery]);
+
+  // Add the handleContentChange function
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+
+    // Get cursor position
+    const cursorPos = e.target.selectionStart || 0;
+    setCursorPosition(cursorPos);
+
+    // Check for mention trigger
+    const textBeforeCursor = newContent.substring(0, cursorPos);
+
+    // Look for @ that is either at the start of text or preceded by whitespace
+    const lastAtSymbolPos = textBeforeCursor.lastIndexOf("@");
+
+    if (lastAtSymbolPos >= 0) {
+      console.log("@ symbol found at position:", lastAtSymbolPos);
+
+      // Check if @ is at the beginning or has a space before it
+      const isValidMentionStart =
+        lastAtSymbolPos === 0 ||
+        /\s/.test(textBeforeCursor.charAt(lastAtSymbolPos - 1));
+
+      console.log("Is valid mention start:", isValidMentionStart);
+
+      if (isValidMentionStart) {
+        // Extract the query (text after @ up to cursor)
+        const query = textBeforeCursor.substring(lastAtSymbolPos + 1);
+        console.log("Extracted query:", query);
+
+        // Only show suggestions if we're not in the middle of a word
+        const isMiddleOfWord =
+          cursorPos < newContent.length &&
+          /\w/.test(newContent.charAt(cursorPos));
+
+        console.log("Is middle of word:", isMiddleOfWord);
+
+        if (!isMiddleOfWord && /^\w*$/.test(query)) {
+          console.log("Setting mention query to:", query);
+          setMentionQuery(query);
+          setShowMentionSuggestions(true);
+          return;
+        }
+      }
+    }
+
+    // If we get here, no valid mention was found
+    setShowMentionSuggestions(false);
+  };
+
+  // Add the handleMentionSelect function
+  const handleMentionSelect = (username: string) => {
+    // Find the position of the @ symbol that started this mention
+    const textBeforeCursor = content.substring(0, cursorPosition);
+    const lastAtSymbolPos = textBeforeCursor.lastIndexOf("@");
+
+    if (lastAtSymbolPos >= 0) {
+      // Replace everything from the @ to the cursor with the username
+      const newContent =
+        content.substring(0, lastAtSymbolPos) +
+        `@${username} ` +
+        content.substring(cursorPosition);
+
+      setContent(newContent);
+
+      // Set cursor position after the inserted mention
+      const newCursorPos = lastAtSymbolPos + username.length + 2; // +2 for @ and space
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+          setCursorPosition(newCursorPos);
+        }
+      }, 0);
+    }
+
+    setShowMentionSuggestions(false);
+  };
+
   return (
     <div className="p-4 flex items-start space-x-4">
       <div className="w-10 h-10 rounded-full bg-gray-800 flex-shrink-0 relative overflow-hidden">
@@ -285,11 +445,12 @@ export default function CommentInput({
       </div>
       <div className="flex-1 space-y-4">
         <TextareaAutosize
+          ref={textareaRef}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           onKeyDown={handleKeyDown}
           placeholder="Post your reply"
-          className="w-full bg-transparent border-b border-gray-800 focus:border-brand resize-none outline-none min-h-[80px] placeholder-gray-600"
+          className={`w-full bg-transparent border-b border-gray-800 focus:border-brand resize-none outline-none min-h-[80px] placeholder-gray-600 ${showMentionSuggestions ? "mention-active" : ""}`}
           maxLength={MAX_CHARS}
           maxRows={8}
           disabled={isSubmitting}
@@ -561,6 +722,69 @@ export default function CommentInput({
                   ))}
                 </div>
               </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {showMentionSuggestions &&
+        mentionSuggestions.length > 0 &&
+        createPortal(
+          <div
+            ref={mentionSuggestionsRef}
+            style={{
+              position: "fixed",
+              top: `${mentionPosition.top}px`,
+              left: `${mentionPosition.left}px`,
+              zIndex: 100,
+              backgroundColor: "#1f2937",
+              borderRadius: "0.5rem",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+              width: "300px",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+            className="border border-gray-700"
+          >
+            <div className="py-1">
+              <div className="px-4 py-2 text-sm text-gray-400 border-b border-gray-700">
+                Mentioning user:{" "}
+                <span className="text-brand font-medium">
+                  @{mentionQuery || "..."}
+                </span>
+              </div>
+              {mentionSuggestions.map((user, index) => (
+                <button
+                  key={user.id}
+                  data-username={user.username}
+                  className={`w-full text-left px-4 py-2 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none transition-colors flex items-center space-x-3 ${index === selectedMentionIndex ? "bg-gray-800" : ""}`}
+                  onClick={() => handleMentionSelect(user.username)}
+                  onMouseEnter={() => setSelectedMentionIndex(index)}
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                    <Image
+                      src={user.avatar}
+                      alt={user.name}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="font-semibold text-white truncate">
+                      {user.name}
+                    </div>
+                    <div className="text-gray-400 text-sm truncate">
+                      @{user.username}
+                    </div>
+                  </div>
+                </button>
+              ))}
+              {mentionSuggestions.length === 0 && (
+                <div className="px-4 py-3 text-gray-400 text-center">
+                  No users found
+                </div>
+              )}
             </div>
           </div>,
           document.body,

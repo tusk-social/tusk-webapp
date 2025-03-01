@@ -136,18 +136,29 @@ export default function CreatePost({
 
   // Handle mention suggestions
   useEffect(() => {
-    if (mentionQuery) {
-      const filteredUsers = [] as MentionUser[];
-      filteredUsers
-        .filter(
-          (user) =>
-            user.username.toLowerCase().includes(mentionQuery.toLowerCase()) ||
-            user.name.toLowerCase().includes(mentionQuery.toLowerCase()),
-        )
-        .slice(0, 5);
+    if (mentionQuery && mentionQuery.length >= 2) {
+      const fetchMentionSuggestions = async () => {
+        try {
+          console.log("Fetching mention suggestions for:", mentionQuery);
+          const response = await fetch(
+            `/api/users/mentions?q=${encodeURIComponent(mentionQuery)}&limit=5`,
+          );
 
-      setMentionSuggestions(filteredUsers);
-      setSelectedMentionIndex(0); // Reset selection to first item
+          if (!response.ok) {
+            throw new Error("Failed to fetch mention suggestions");
+          }
+
+          const data = await response.json();
+          console.log("Mention suggestions received:", data.users);
+          setMentionSuggestions(data.users || []);
+          setSelectedMentionIndex(0); // Reset selection to first item
+        } catch (error) {
+          console.error("Error fetching mention suggestions:", error);
+          setMentionSuggestions([]);
+        }
+      };
+
+      fetchMentionSuggestions();
     } else {
       setMentionSuggestions([]);
     }
@@ -383,9 +394,9 @@ export default function CreatePost({
           /\w/.test(newContent.charAt(cursorPos));
 
         if (!isMiddleOfWord && /^\w*$/.test(query)) {
+          console.log("Mention detected:", query);
           setMentionQuery(query);
           setShowMentionSuggestions(true);
-          console.log("Mention detected:", query);
           return;
         }
       }
@@ -686,7 +697,6 @@ export default function CreatePost({
         )}
 
       {showMentionSuggestions &&
-        mentionSuggestions.length > 0 &&
         createPortal(
           <div
             ref={mentionSuggestionsRef}
@@ -711,34 +721,35 @@ export default function CreatePost({
                   @{mentionQuery || "..."}
                 </span>
               </div>
-              {mentionSuggestions.map((user, index) => (
-                <button
-                  key={user.id}
-                  data-username={user.username}
-                  className={`w-full text-left px-4 py-2 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none transition-colors flex items-center space-x-3 ${index === selectedMentionIndex ? "bg-gray-800" : ""}`}
-                  onClick={() => handleMentionSelect(user.username)}
-                  onMouseEnter={() => setSelectedMentionIndex(index)}
-                >
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                    <Image
-                      src={user.avatar}
-                      alt={user.name}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="font-semibold text-white truncate">
-                      {user.name}
+              {mentionSuggestions.length > 0 ? (
+                mentionSuggestions.map((user, index) => (
+                  <button
+                    key={user.id}
+                    data-username={user.username}
+                    className={`w-full text-left px-4 py-2 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none transition-colors flex items-center space-x-3 ${index === selectedMentionIndex ? "bg-gray-800" : ""}`}
+                    onClick={() => handleMentionSelect(user.username)}
+                    onMouseEnter={() => setSelectedMentionIndex(index)}
+                  >
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                      <Image
+                        src={user.avatar}
+                        alt={user.name}
+                        width={40}
+                        height={40}
+                        className="object-cover"
+                      />
                     </div>
-                    <div className="text-gray-400 text-sm truncate">
-                      @{user.username}
+                    <div className="flex-1 overflow-hidden">
+                      <div className="font-semibold text-white truncate">
+                        {user.name}
+                      </div>
+                      <div className="text-gray-400 text-sm truncate">
+                        @{user.username}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-              {mentionSuggestions.length === 0 && (
+                  </button>
+                ))
+              ) : (
                 <div className="px-4 py-3 text-gray-400 text-center">
                   No users found
                 </div>
