@@ -161,27 +161,57 @@ export default function CommentInput({
     setSelectedGif(null);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image size should be less than 5MB");
-        return;
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB", { duration: 3000 });
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed", { duration: 3000 });
+      return;
+    }
+
+    // Clear any selected GIF
+    setSelectedGif(null);
+
+    try {
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "post");
+
+      // Upload the image to Vercel Blob
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload image");
       }
 
-      // Check file type
-      if (!file.type.startsWith("image/")) {
-        alert("Only image files are allowed");
-        return;
+      const data = await response.json();
+
+      // Set the image URL from the response
+      setImage(data.url);
+
+      toast.success("Image uploaded successfully!", { duration: 3000 });
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      toast.error(error.message || "Failed to upload image", {
+        duration: 3000,
+      });
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-
-      // Clear any selected GIF
-      setSelectedGif(null);
-
-      const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target?.result as string);
-      reader.readAsDataURL(file);
     }
   };
 

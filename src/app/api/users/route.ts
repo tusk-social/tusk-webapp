@@ -153,18 +153,23 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Process the form data
-    const formData = await request.formData();
+    // Get the JSON data from the request
+    const {
+      displayName,
+      bio,
+      location,
+      websiteUrl,
+      avatarUrl,
+      profileBannerUrl,
+    } = await request.json();
 
-    // Extract profile data from form
-    const displayName = formData.get("displayName") as string;
-    const bio = formData.get("bio") as string;
-    const location = formData.get("location") as string;
-    const websiteUrl = formData.get("websiteUrl") as string;
-
-    // Get file uploads if present
-    const avatarFile = formData.get("avatar") as File | null;
-    const bannerFile = formData.get("banner") as File | null;
+    // Validate required fields
+    if (!displayName) {
+      return NextResponse.json(
+        { error: "Display name is required" },
+        { status: 400 },
+      );
+    }
 
     // Prepare update data
     const updateData: any = {
@@ -174,17 +179,14 @@ export async function PATCH(request: NextRequest) {
       websiteUrl: websiteUrl || null,
     };
 
-    // Handle avatar upload if provided
-    if (avatarFile) {
-      console.log("Avatar file received:", avatarFile.name, avatarFile.size);
-      updateData.avatarUrl = `/uploads/avatars/${authenticatedUser.id}-${Date.now()}.jpg`;
+    // Add avatar URL if provided
+    if (avatarUrl) {
+      updateData.avatarUrl = avatarUrl;
     }
 
-    // Handle banner upload if provided
-    if (bannerFile) {
-      // Similar placeholder for banner upload
-      console.log("Banner file received:", bannerFile.name, bannerFile.size);
-      updateData.profileBannerUrl = `/uploads/banners/${authenticatedUser.id}-${Date.now()}.jpg`;
+    // Add banner URL if provided
+    if (profileBannerUrl) {
+      updateData.profileBannerUrl = profileBannerUrl;
     }
 
     // Update the user in the database

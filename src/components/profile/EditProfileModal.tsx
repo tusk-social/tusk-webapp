@@ -198,24 +198,62 @@ export default function EditProfileModal({
     setIsLoading(true);
 
     try {
-      // TO-DO: Handle file uploads
-      const formData = new FormData();
-      formData.append("displayName", displayName);
-      formData.append("bio", sanitizeInput(bio));
-      formData.append("location", location);
-      formData.append("websiteUrl", websiteUrl);
-
+      // Upload avatar if changed
+      let avatarUrl = user.avatarUrl;
       if (avatarFile) {
-        formData.append("avatar", avatarFile);
+        const avatarFormData = new FormData();
+        avatarFormData.append("file", avatarFile);
+        avatarFormData.append("folder", "avatar");
+
+        const avatarResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: avatarFormData,
+        });
+
+        if (!avatarResponse.ok) {
+          throw new Error("Failed to upload avatar");
+        }
+
+        const avatarData = await avatarResponse.json();
+        avatarUrl = avatarData.url;
       }
 
+      // Upload banner if changed
+      let bannerUrl = user.profileBannerUrl;
       if (bannerFile) {
-        formData.append("banner", bannerFile);
+        const bannerFormData = new FormData();
+        bannerFormData.append("file", bannerFile);
+        bannerFormData.append("folder", "banner");
+
+        const bannerResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: bannerFormData,
+        });
+
+        if (!bannerResponse.ok) {
+          throw new Error("Failed to upload banner");
+        }
+
+        const bannerData = await bannerResponse.json();
+        bannerUrl = bannerData.url;
       }
+
+      // Update user profile with form data and image URLs
+      const profileData = {
+        displayName,
+        bio: sanitizeInput(bio),
+        location,
+        websiteUrl,
+        avatarUrl,
+        profileBannerUrl: bannerUrl,
+      };
 
       const response = await fetch(`/api/users/`, {
         method: "PATCH",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profileData),
       });
 
       if (!response.ok) {

@@ -15,22 +15,17 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "assets.newatlas.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "newatlas-brightspot.s3.amazonaws.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "media.tenor.com",
         pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "i.imgflip.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "317nzomqjewamrtx.public.blob.vercel-storage.com",
         pathname: "/**",
       },
     ],

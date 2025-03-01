@@ -269,15 +269,50 @@ export default function CreatePost({
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedGif(null);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Clear any selected GIF
+    setSelectedGif(null);
+
+    try {
+      // Show loading state
+      setIsSubmitting(true);
+
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "post");
+
+      // Upload the image to Vercel Blob
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload image");
+      }
+
+      const data = await response.json();
+
+      // Set the image URL from the response
+      setImage(data.url);
+
+      toast.success("Image uploaded successfully!", { duration: 3000 });
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      toast.error(error.message || "Failed to upload image", {
+        duration: 3000,
+      });
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
