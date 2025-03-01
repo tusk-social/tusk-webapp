@@ -54,7 +54,7 @@ export const EXPLORE_POSTS: Post[] = [
     author: {
       name: "Tech Explorer",
       username: "techexplorer",
-      avatar: "https://api.randomx.ai/avatar/techexplorer",
+      avatarUrl: "https://api.randomx.ai/avatar/techexplorer",
     },
     createdAt: new Date(),
     stats: {
@@ -72,7 +72,7 @@ export const EXPLORE_POSTS: Post[] = [
     author: {
       name: "Web Wizard",
       username: "webwizard",
-      avatar: "https://api.randomx.ai/avatar/webwizard",
+      avatarUrl: "https://api.randomx.ai/avatar/webwizard",
     },
     createdAt: new Date(),
     images: [
