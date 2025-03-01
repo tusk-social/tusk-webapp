@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import CommentInput from "./CommentInput";
 import { useUser } from "@/context/UserContext";
+import { PostType, MediaType } from "@/types/post";
 
 interface CommentListProps {
   postId: string;
@@ -63,16 +64,26 @@ export default function CommentList({
     }
   };
 
-  const handleSubmit = async (content: string, image: string | null) => {
-    if (!content.trim() && !image) return;
+  const handleSubmit = async (
+    content: string,
+    media: { type: string; url: string } | null,
+  ) => {
+    if (!content.trim() && !media) return;
 
     try {
       setIsSubmitting(true);
 
+      // Map media type to PostType
+      const postType: PostType = media
+        ? media.type === "gif"
+          ? "image"
+          : (media.type as PostType)
+        : "text";
+
       // Create a temporary optimistic comment
       const tempComment: Post = {
         id: "temp-" + Date.now(),
-        type: image ? "image" : "text",
+        type: postType,
         content: content,
         text: content,
         createdAt: new Date(),
@@ -86,7 +97,12 @@ export default function CommentList({
           likes: 0,
           views: 0,
         },
-        ...(image && { images: [image] }),
+        ...(media && {
+          media: {
+            type: media.type as MediaType,
+            url: media.url,
+          },
+        }),
       };
 
       // Optimistically update the UI
@@ -100,7 +116,12 @@ export default function CommentList({
         },
         body: JSON.stringify({
           text: content,
-          ...(image && { media: image }),
+          ...(media && {
+            media: {
+              type: media.type as MediaType,
+              url: media.url,
+            },
+          }),
         }),
       });
 
