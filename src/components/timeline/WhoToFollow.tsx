@@ -178,14 +178,6 @@ function WhoToFollow() {
   }, []);
 
   const handleUserFade = (userId: number) => {
-    // For mock data
-    setUsers((prevUsers) => {
-      const remainingUsers = prevUsers.filter((user) => user.id !== userId);
-      const newUser = { ...remainingUsers[0], id: Math.random() }; // Simulate fetching a new user
-      return [...remainingUsers.slice(1), newUser];
-    });
-
-    // For real data
     setSuggestedUsers((prevUsers) => {
       return prevUsers.filter((user) => user.id !== userId);
     });
@@ -223,9 +215,6 @@ function WhoToFollow() {
             No suggestions available
           </div>
         )}
-        <button className="w-full text-left px-4 py-4 text-brand hover:bg-white/[0.03] transition rounded-b-2xl">
-          Show more
-        </button>
       </div>
     </div>
   );
