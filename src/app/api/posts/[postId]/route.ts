@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { postId } = await params;
-    const user = await getCurrentUser();
 
     const post = await postService.getPostById(postId);
 

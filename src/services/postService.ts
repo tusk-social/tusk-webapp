@@ -163,6 +163,19 @@ export const postService = {
             mentionedUserId: user.id,
           },
         });
+
+        // Create notification if the mentioned user is not the post author
+        if (user.id !== userId) {
+          await prisma.notification.create({
+            data: {
+              userId: user.id, // Mentioned user receives the notification
+              actorId: userId, // User who mentioned them
+              type: "MENTION",
+              postId: post.id,
+              isRead: false,
+            },
+          });
+        }
       }
     }
 
@@ -188,18 +201,62 @@ export const postService = {
 
     // Update parent post reply count if this is a reply
     if (parentPostId) {
-      await prisma.post.update({
+      // Get the parent post to check its author
+      const parentPost = await prisma.post.findUnique({
         where: { id: parentPostId },
-        data: { replyCount: { increment: 1 } },
+        select: { userId: true },
       });
+
+      if (parentPost) {
+        // Update reply count
+        await prisma.post.update({
+          where: { id: parentPostId },
+          data: { replyCount: { increment: 1 } },
+        });
+
+        // Create notification if the reply is not by the post author
+        if (parentPost.userId !== userId) {
+          await prisma.notification.create({
+            data: {
+              userId: parentPost.userId, // Parent post author receives the notification
+              actorId: userId, // User who replied
+              type: "REPLY",
+              postId: post.id, // ID of the reply post
+              isRead: false,
+            },
+          });
+        }
+      }
     }
 
     // Update original post repost count if this is a repost
     if (repostPostId) {
-      await prisma.post.update({
+      // Get the reposted post to check its author
+      const repostedPost = await prisma.post.findUnique({
         where: { id: repostPostId },
-        data: { repostCount: { increment: 1 } },
+        select: { userId: true },
       });
+
+      if (repostedPost) {
+        // Update repost count
+        await prisma.post.update({
+          where: { id: repostPostId },
+          data: { repostCount: { increment: 1 } },
+        });
+
+        // Create notification if the repost is not by the post author
+        if (repostedPost.userId !== userId) {
+          await prisma.notification.create({
+            data: {
+              userId: repostedPost.userId, // Original post author receives the notification
+              actorId: userId, // User who reposted
+              type: "REPOST",
+              postId: post.id, // ID of the repost
+              isRead: false,
+            },
+          });
+        }
+      }
     }
 
     // Fetch the post with all relations after creating mentions and hashtags
@@ -471,33 +528,45 @@ export const postService = {
 
   // Like a post
   async likePost(userId: string, postId: string): Promise<void> {
-    // Check if the like already exists
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        userId_postId: {
-          userId,
-          postId,
-        },
+    // Get the post first to check if it exists and get the author's ID
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    // Don't create notification if user is liking their own post
+    const shouldNotify = post.userId !== userId;
+
+    // Create the like
+    await prisma.like.create({
+      data: {
+        userId,
+        postId,
       },
     });
 
-    if (existingLike) {
-      return; // Like already exists
-    }
+    // Update the post's like count
+    await prisma.post.update({
+      where: { id: postId },
+      data: { likeCount: { increment: 1 } },
+    });
 
-    // Create the like and update the post's like count
-    await prisma.$transaction([
-      prisma.like.create({
+    // Create notification if the post is not by the same user
+    if (shouldNotify) {
+      await prisma.notification.create({
         data: {
-          userId,
+          userId: post.userId, // Post author receives the notification
+          actorId: userId, // User who liked the post
+          type: "LIKE",
           postId,
+          isRead: false,
         },
-      }),
-      prisma.post.update({
-        where: { id: postId },
-        data: { likeCount: { increment: 1 } },
-      }),
-    ]);
+      });
+    }
   },
 
   // Unlike a post

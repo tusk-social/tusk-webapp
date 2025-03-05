@@ -75,6 +75,16 @@ export async function POST(request: NextRequest) {
       await userService.incrementFollowersCount(targetId);
       await userService.incrementFollowingCount(currentUser.id);
 
+      // Create notification for the followed user
+      await prisma.notification.create({
+        data: {
+          userId: targetId, // User being followed receives the notification
+          actorId: currentUser.id, // User who followed
+          type: "FOLLOW",
+          isRead: false,
+        },
+      });
+
       return NextResponse.json(
         { message: "Successfully followed user" },
         { status: 200 },

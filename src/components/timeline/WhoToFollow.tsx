@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { memo, useMemo, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 const UserToFollow = memo(
   ({
@@ -108,17 +109,24 @@ const UserToFollow = memo(
     return (
       <div className={userClass}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
+          <Link
+            href={`/${user.username}`}
+            className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden hover:opacity-80 transition"
+          >
             <Image
               src={user.avatar}
               alt={`${user.name}'s avatar`}
               width={40}
               height={40}
             />
-          </div>
+          </Link>
           <div>
-            <p className="font-bold text-base">{user.name}</p>
-            <p className="text-gray-500 text-sm">@{user.username}</p>
+            <Link href={`/${user.username}`} className="hover:underline">
+              <p className="font-bold text-base">{user.name}</p>
+            </Link>
+            <Link href={`/${user.username}`} className="hover:underline">
+              <p className="text-gray-500 text-sm">@{user.username}</p>
+            </Link>
           </div>
         </div>
         <button

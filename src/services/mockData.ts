@@ -1,37 +1,6 @@
 import { Post, PostType } from "@/types/post";
 
-export const SAMPLE_NOTIFICATIONS = [
-  {
-    id: "1",
-    type: "like",
-    isRead: false,
-    createdAt: "2h",
-    actor: {
-      name: "John Doe",
-      username: "johndoe",
-      avatar: "https://api.randomx.ai/avatar/currentuser",
-    },
-    post: {
-      id: "1",
-      content: "This is an amazing post!",
-    },
-  },
-  {
-    id: "4",
-    type: "mention",
-    isRead: true,
-    createdAt: "2d",
-    actor: {
-      name: "Product Guru",
-      username: "prodguru",
-      avatar: "https://api.randomx.ai/avatar/currentuser",
-    },
-    post: {
-      id: "4",
-      content: "Hey @username, what do you think about this?",
-    },
-  },
-];
+export const SAMPLE_NOTIFICATIONS = [];
 
 export const MOCK_USER = {
   name: "John Doe",

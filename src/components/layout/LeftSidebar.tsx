@@ -18,6 +18,7 @@ import { usePostModal } from "@/context/PostModalContext";
 import { useUser } from "@/context/UserContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 
 // Extract NavItem into a separate component
 const NavItem = memo(
@@ -33,6 +34,8 @@ const NavItem = memo(
     isActive: boolean;
   }) => {
     const Icon = item.icon;
+    const { count } = useUnreadNotifications();
+    const showBadge = item.label === "Notifications" && count > 0;
 
     return (
       <Link
@@ -52,9 +55,9 @@ const NavItem = memo(
                 isActive && "text-brand",
               )}
             />
-            {item.label === "Notifications" && (
+            {showBadge && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full text-[10px] flex items-center justify-center text-white font-bold">
-                3
+                {count > 99 ? "99+" : count}
               </span>
             )}
           </div>
