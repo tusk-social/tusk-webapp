@@ -1,23 +1,28 @@
 export type NotificationType =
-  | "like"
-  | "repost"
-  | "follow"
-  | "mention"
-  | "reply";
+  | "LIKE"
+  | "REPOST"
+  | "FOLLOW"
+  | "MENTION"
+  | "REPLY";
 
 export interface Notification {
   id: string;
-  type: NotificationType | string;
+  type: NotificationType;
   isRead: boolean;
   createdAt: string;
   actor: {
-    name: string;
+    id: string;
+    displayName: string;
     username: string;
     avatar?: string;
   };
   post?: {
     id: string;
     content: string;
-    image?: string;
+    media?: any;
+    createdAt: string;
+    username: string;
+    parentId?: string;
+    parentUsername?: string;
   };
 }
