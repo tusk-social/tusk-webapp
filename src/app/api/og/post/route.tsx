@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
         ? media.url
         : null;
 
+    // Truncate text if it's too long
+    const truncatedText = text.length > 280 ? `${text.slice(0, 280)}...` : text;
+
     return new ImageResponse(
       (
         <div
@@ -47,9 +50,8 @@ export async function GET(request: NextRequest) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
             backgroundColor: "black",
-            padding: 80,
+            padding: "60px 80px",
             fontFamily: "system-ui, sans-serif",
             position: "relative",
           }}
@@ -59,24 +61,24 @@ export async function GET(request: NextRequest) {
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: 40,
+              marginBottom: 32,
               width: "100%",
             }}
           >
             {/* Avatar */}
             <div
               style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
+                width: 64,
+                height: 64,
+                borderRadius: 32,
                 overflow: "hidden",
-                marginRight: 20,
+                marginRight: 16,
                 backgroundColor: "#333",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "white",
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: "bold",
               }}
             >
@@ -84,8 +86,8 @@ export async function GET(request: NextRequest) {
                 <img
                   src={authorAvatar}
                   alt={authorName}
-                  width={80}
-                  height={80}
+                  width={64}
+                  height={64}
                   style={{
                     objectFit: "cover",
                   }}
@@ -103,7 +105,7 @@ export async function GET(request: NextRequest) {
             >
               <span
                 style={{
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: "bold",
                   color: "white",
                   marginBottom: 4,
@@ -114,7 +116,7 @@ export async function GET(request: NextRequest) {
               </span>
               <span
                 style={{
-                  fontSize: 24,
+                  fontSize: 20,
                   color: "#666",
                   display: "flex",
                 }}
@@ -133,20 +135,25 @@ export async function GET(request: NextRequest) {
               justifyContent: "space-between",
               width: "100%",
               gap: 40,
+              flex: 1,
+              minHeight: 0,
             }}
           >
             {/* Text Content */}
             <div
               style={{
-                fontSize: firstImage ? 32 : 40,
+                fontSize: firstImage ? 28 : 36,
                 fontWeight: "normal",
                 color: "white",
                 flex: firstImage ? "1" : "auto",
                 maxWidth: firstImage ? "50%" : "100%",
                 display: "flex",
+                lineHeight: 1.4,
+                overflow: "hidden",
+                maxHeight: firstImage ? 280 : 400,
               }}
             >
-              {text}
+              {truncatedText}
             </div>
 
             {/* Post Image */}
@@ -154,7 +161,7 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   flex: 1,
-                  height: 300,
+                  maxHeight: 280,
                   borderRadius: 16,
                   overflow: "hidden",
                   backgroundColor: "#333",
@@ -164,8 +171,6 @@ export async function GET(request: NextRequest) {
                 <img
                   src={firstImage}
                   alt="Post media"
-                  width={400}
-                  height={300}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -180,8 +185,8 @@ export async function GET(request: NextRequest) {
           <div
             style={{
               position: "absolute",
-              bottom: 40,
-              right: 40,
+              bottom: 32,
+              right: 32,
               display: "flex",
               alignItems: "center",
               gap: 8,
@@ -189,15 +194,15 @@ export async function GET(request: NextRequest) {
           >
             <div
               style={{
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 borderRadius: 8,
                 background: "linear-gradient(135deg, #be3fd5 0%, #be3fd5 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "white",
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: "bold",
               }}
             >
@@ -205,7 +210,7 @@ export async function GET(request: NextRequest) {
             </div>
             <span
               style={{
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: "bold",
                 color: "white",
                 display: "flex",
