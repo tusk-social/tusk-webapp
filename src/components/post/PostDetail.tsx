@@ -8,6 +8,7 @@ import {
   Share,
   Bookmark,
   BookMarked,
+  ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +19,7 @@ import { toast } from "react-hot-toast";
 
 interface PostDetailProps {
   post: Post;
+  isGuest?: boolean;
 }
 
 function parseContent(content: string | undefined | null) {
@@ -68,7 +70,7 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-export default function PostDetail({ post }: PostDetailProps) {
+export default function PostDetail({ post, isGuest = false }: PostDetailProps) {
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(
@@ -122,6 +124,13 @@ export default function PostDetail({ post }: PostDetailProps) {
   };
 
   const handleBookmark = async () => {
+    if (isGuest) {
+      toast.error("Sign in to bookmark posts", {
+        duration: 3000,
+      });
+      return;
+    }
+
     if (isBookmarkLoading) return;
 
     try {
@@ -163,6 +172,13 @@ export default function PostDetail({ post }: PostDetailProps) {
   };
 
   const handleLike = async () => {
+    if (isGuest) {
+      toast.error("Sign in to like posts", {
+        duration: 3000,
+      });
+      return;
+    }
+
     if (isLikeLoading) return;
 
     try {
@@ -349,7 +365,10 @@ export default function PostDetail({ post }: PostDetailProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between px-2 py-2 border-b border-gray-800 text-gray-500">
-          <button className="flex items-center space-x-2 hover:text-brand group p-2">
+          <button
+            className="flex items-center space-x-2 hover:text-brand group p-2"
+            onClick={() => isGuest && toast.error("Sign in to reply to posts")}
+          >
             <div className="p-2 rounded-full group-hover:bg-brand/10">
               <MessageCircle className="w-5 h-5" />
             </div>
@@ -400,9 +419,27 @@ export default function PostDetail({ post }: PostDetailProps) {
       </article>
 
       {/* Comments Section */}
-      <div className="border-t border-gray-800">
-        <CommentList postId={post.id} initialComments={post.comments || []} />
-      </div>
+      {isGuest ? (
+        <div className="p-4 border-t border-gray-800">
+          <div className="bg-gray-900 rounded-xl p-4">
+            <h2 className="text-xl font-bold mb-2">Join the conversation</h2>
+            <p className="text-gray-400 mb-4">
+              Sign in to reply to this post and join the discussion!
+            </p>
+            <Link
+              href="/auth/login"
+              className="w-full bg-brand hover:bg-brand/90 text-white px-6 py-3 rounded-full font-bold text-base transition flex items-center justify-center gap-2 group"
+            >
+              <span>Sign in to reply</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="border-t border-gray-800">
+          <CommentList postId={post.id} initialComments={post.comments || []} />
+        </div>
+      )}
     </>
   );
 }

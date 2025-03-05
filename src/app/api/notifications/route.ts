@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const autoMarkRead = searchParams.get("autoMarkRead") !== "false"; // Default to true
     const type = searchParams.get("type") as NotificationType | null; // Filter by notification type
+
     // Build where clause
     const where = {
       userId: currentUser.id,

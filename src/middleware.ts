@@ -57,12 +57,26 @@ export async function middleware(request: NextRequest) {
   console.log(pathname);
   console.log("==== END PATHNAME ====");
 
+  // Allow OG image endpoint and public post API endpoint
+  if (
+    pathname.startsWith("/api/og") ||
+    (pathname.startsWith("/api/posts/") && method === "GET")
+  ) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/_chopin") || pathname.startsWith("/auth/login")) {
     return chopinMiddleware(request);
   }
 
   if (pathname.startsWith("/api") && method !== "GET") {
     return chopinMiddleware(request);
+  }
+
+  // Check if it's a post status page
+  const isPostPage = /^\/[^\/]+\/status\/[^\/]+$/.test(pathname);
+  if (isPostPage) {
+    return NextResponse.next();
   }
 
   const isPublicPath = publicPaths.some((path) => pathname === path);
