@@ -57,6 +57,11 @@ export async function middleware(request: NextRequest) {
   console.log(pathname);
   console.log("==== END PATHNAME ====");
 
+  // Allow external API endpoints - they use their own authentication
+  if (pathname.startsWith("/api/external/")) {
+    return NextResponse.next();
+  }
+
   // Allow OG image endpoint and public post API endpoint
   if (
     pathname.startsWith("/api/og") ||
