@@ -30,6 +30,7 @@ model User {
   mentions        Mention[]
   notifications   Notification[] @relation("UserNotifications")
   actorNotifications Notification[] @relation("ActorNotifications")
+  apiKeys         ApiKey[]
 
   @@map("users") 
 }
@@ -161,4 +162,20 @@ model Notification {
   @@index([createdAt])
   @@index([isRead])
   @@map("notifications")
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  key         String    @unique
+  name        String
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean   @default(true)
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([key])
+  @@index([userId])
+  @@map("api_keys")
 }
